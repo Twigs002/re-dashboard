@@ -2,31 +2,236 @@
   "2025-04-07": {
     "generated": "2025-04-13T06:00:00Z",
     "rm": [
-      {"name":"Gio",           "calls":1165,"success":237,"rental":1,"seller":59,"email":167,"workTime":23.27},
-      {"name":"NaomiCiza",     "calls":836, "success":144,"rental":2,"seller":7, "email":133,"workTime":15.85},
-      {"name":"Kay-LeeOrphan", "calls":986, "success":139,"rental":1,"seller":15,"email":120,"workTime":14.67},
-      {"name":"BrandonNtini",  "calls":683, "success":208,"rental":7,"seller":3, "email":193,"workTime":14.79},
-      {"name":"SadiqaCarelse", "calls":647, "success":133,"rental":0,"seller":17,"email":110,"workTime":10.51},
-      {"name":"DeclanT",       "calls":213, "success":33, "rental":0,"seller":3, "email":30, "workTime":1.21},
-      {"name":"CameronPaulse", "calls":29,  "success":7,  "rental":0,"seller":0, "email":7,  "workTime":1.81}
+      {
+        "name": "Gio",
+        "calls": 1165,
+        "success": 237,
+        "rental": 1,
+        "seller": 59,
+        "email": 167,
+        "workTime": 23.27
+      },
+      {
+        "name": "NaomiCiza",
+        "calls": 836,
+        "success": 144,
+        "rental": 2,
+        "seller": 7,
+        "email": 133,
+        "workTime": 15.85
+      },
+      {
+        "name": "Kay-LeeOrphan",
+        "calls": 986,
+        "success": 139,
+        "rental": 1,
+        "seller": 15,
+        "email": 120,
+        "workTime": 14.67
+      },
+      {
+        "name": "BrandonNtini",
+        "calls": 683,
+        "success": 208,
+        "rental": 7,
+        "seller": 3,
+        "email": 193,
+        "workTime": 14.79
+      },
+      {
+        "name": "SadiqaCarelse",
+        "calls": 647,
+        "success": 133,
+        "rental": 0,
+        "seller": 17,
+        "email": 110,
+        "workTime": 10.51
+      },
+      {
+        "name": "DeclanT",
+        "calls": 213,
+        "success": 33,
+        "rental": 0,
+        "seller": 3,
+        "email": 30,
+        "workTime": 1.21
+      },
+      {
+        "name": "CameronPaulse",
+        "calls": 29,
+        "success": 7,
+        "rental": 0,
+        "seller": 0,
+        "email": 7,
+        "workTime": 1.81
+      }
     ],
     "fancy": [
-      {"name":"AnneeqaWilliams","div":"Dragons / Gunslingers",               "calls":172,"success":22, "rental":1,"seller":1, "email":20, "workTime":3.56},
-      {"name":"Nicolette",       "div":"Dragons",                             "calls":18, "success":2,  "rental":0,"seller":2, "email":0,  "workTime":0.76},
-      {"name":"WarrickSolomons", "div":"TNT / Wizards",                      "calls":27, "success":2,  "rental":0,"seller":0, "email":2,  "workTime":0.58},
-      {"name":"LisabellPanze",   "div":"Betties / Pirates",                  "calls":114,"success":19, "rental":0,"seller":8, "email":11, "workTime":2.35},
-      {"name":"CraigCarroll",    "div":"Proteas",                            "calls":239,"success":28, "rental":0,"seller":9, "email":16, "workTime":9.35},
-      {"name":"TamzinJacobs",    "div":"Llamas / Hoekers",                   "calls":984,"success":130,"rental":1,"seller":24,"email":100,"workTime":25.07},
-      {"name":"QhayiyaDayimani", "div":"Assassins / City Sunsets / Hout Baes","calls":496,"success":17,"rental":1,"seller":9, "email":7,  "workTime":22.92},
-      {"name":"DouglasNkulu",    "div":"Gladiators",                         "calls":323,"success":27, "rental":0,"seller":4, "email":23, "workTime":9.99},
-      {"name":"StaddyMalonga",   "div":"Babes / Slayers",                    "calls":164,"success":50, "rental":0,"seller":5, "email":42, "workTime":4.54},
-      {"name":"GenevaGomes",     "div":"Weasels",                            "calls":208,"success":12, "rental":0,"seller":4, "email":8,  "workTime":4.34},
-      {"name":"KayleighDucroq",  "div":"Warriors",                           "calls":154,"success":32, "rental":1,"seller":9, "email":22, "workTime":4.96},
-      {"name":"DeclanT",         "div":"Spartans",                           "calls":291,"success":71, "rental":0,"seller":11,"email":59, "workTime":9.16},
-      {"name":"Leon Salimu",     "div":"Lions",                              "calls":259,"success":82, "rental":0,"seller":13,"email":66, "workTime":10.02},
-      {"name":"SadiqaCarelse",   "div":"Surfers / Farmers",                  "calls":202,"success":6,  "rental":0,"seller":3, "email":3,  "workTime":5.27},
-      {"name":"NielSteenkamp",   "div":"Surfers",                            "calls":2,  "success":0,  "rental":0,"seller":0, "email":0,  "workTime":0.03},
-      {"name":"Test",            "div":"Wolves",                             "calls":262,"success":19, "rental":1,"seller":3, "email":14, "workTime":5.89}
+      {
+        "name": "AnneeqaWilliams",
+        "div": "Dragons / Gunslingers",
+        "calls": 172,
+        "success": 22,
+        "rental": 1,
+        "seller": 1,
+        "email": 20,
+        "workTime": 3.56
+      },
+      {
+        "name": "Nicolette",
+        "div": "Dragons",
+        "calls": 18,
+        "success": 2,
+        "rental": 0,
+        "seller": 2,
+        "email": 0,
+        "workTime": 0.76
+      },
+      {
+        "name": "WarrickSolomons",
+        "div": "TNT / Wizards",
+        "calls": 27,
+        "success": 2,
+        "rental": 0,
+        "seller": 0,
+        "email": 2,
+        "workTime": 0.58
+      },
+      {
+        "name": "LisabellPanze",
+        "div": "Betties / Pirates",
+        "calls": 114,
+        "success": 19,
+        "rental": 0,
+        "seller": 8,
+        "email": 11,
+        "workTime": 2.35
+      },
+      {
+        "name": "CraigCarroll",
+        "div": "Proteas",
+        "calls": 239,
+        "success": 28,
+        "rental": 0,
+        "seller": 9,
+        "email": 16,
+        "workTime": 9.35
+      },
+      {
+        "name": "TamzinJacobs",
+        "div": "Llamas / Hoekers",
+        "calls": 984,
+        "success": 130,
+        "rental": 1,
+        "seller": 24,
+        "email": 100,
+        "workTime": 25.07
+      },
+      {
+        "name": "QhayiyaDayimani",
+        "div": "Assassins / City Sunsets / Hout Baes",
+        "calls": 496,
+        "success": 17,
+        "rental": 1,
+        "seller": 9,
+        "email": 7,
+        "workTime": 22.92
+      },
+      {
+        "name": "DouglasNkulu",
+        "div": "Gladiators",
+        "calls": 323,
+        "success": 27,
+        "rental": 0,
+        "seller": 4,
+        "email": 23,
+        "workTime": 9.99
+      },
+      {
+        "name": "StaddyMalonga",
+        "div": "Babes / Slayers",
+        "calls": 164,
+        "success": 50,
+        "rental": 0,
+        "seller": 5,
+        "email": 42,
+        "workTime": 4.54
+      },
+      {
+        "name": "GenevaGomes",
+        "div": "Weasels",
+        "calls": 208,
+        "success": 12,
+        "rental": 0,
+        "seller": 4,
+        "email": 8,
+        "workTime": 4.34
+      },
+      {
+        "name": "KayleighDucroq",
+        "div": "Warriors",
+        "calls": 154,
+        "success": 32,
+        "rental": 1,
+        "seller": 9,
+        "email": 22,
+        "workTime": 4.96
+      },
+      {
+        "name": "DeclanT",
+        "div": "Spartans",
+        "calls": 291,
+        "success": 71,
+        "rental": 0,
+        "seller": 11,
+        "email": 59,
+        "workTime": 9.16
+      },
+      {
+        "name": "Leon Salimu",
+        "div": "Lions",
+        "calls": 259,
+        "success": 82,
+        "rental": 0,
+        "seller": 13,
+        "email": 66,
+        "workTime": 10.02
+      },
+      {
+        "name": "SadiqaCarelse",
+        "div": "Surfers / Farmers",
+        "calls": 202,
+        "success": 6,
+        "rental": 0,
+        "seller": 3,
+        "email": 3,
+        "workTime": 5.27
+      },
+      {
+        "name": "NielSteenkamp",
+        "div": "Surfers",
+        "calls": 2,
+        "success": 0,
+        "rental": 0,
+        "seller": 0,
+        "email": 0,
+        "workTime": 0.03
+      },
+      {
+        "name": "Test",
+        "div": "Wolves",
+        "calls": 262,
+        "success": 19,
+        "rental": 1,
+        "seller": 3,
+        "email": 14,
+        "workTime": 5.89
+      }
     ]
+  },
+  "2026-04-06": {
+    "generated": "2026-04-14T08:55:39Z",
+    "rm": [],
+    "fancy": []
   }
 }
