@@ -1,18 +1,3 @@
-"""
-DialFire Historical Backfill Script
-=====================================
-Fetches every Mon–Sun week between START_DATE and today,
-and writes each week into history.json.
-
-Run this manually via GitHub Actions (backfill.yml workflow)
-to import historical data for a date range.
-
-Environment variables:
-  DIALFIRE_CAMPAIGNS   (same secret as daily script — required)
-  START_DATE           e.g. "2026-03-01" — required
-  END_DATE             e.g. "2026-04-13" — optional, defaults to yesterday
-"""
-
 import os, json, time, requests
 from datetime import datetime, timedelta, timezone, date
 
