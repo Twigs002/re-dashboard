@@ -1,44 +1,168 @@
-name: Backfill Historical Data
+import os, json, time, requests
+from datetime import datetime, timedelta, timezone
 
-on:
-  workflow_dispatch:
-    inputs:
-      start_date:
-        description: 'Start date YYYY-MM-DD (e.g. 2026-03-01)'
-        required: true
-        default: '2026-03-01'
-      end_date:
-        description: 'End date YYYY-MM-DD (optional, leave blank for yesterday)'
-        required: false
+raw = os.environ.get("DIALFIRE_CAMPAIGNS", "[]")
+try:
+    CAMPAIGNS = json.loads(raw)
+except json.JSONDecodeError as e:
+    print(f"Could not parse DIALFIRE_CAMPAIGNS: {e}")
+    raise
 
-jobs:
-  backfill:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - run: pip install requests
-      - name: Run backfill
-        env:
-          DIALFIRE_CAMPAIGNS: ${{ secrets.DIALFIRE_CAMPAIGNS }}
-          START_DATE: ${{ github.event.inputs.start_date }}
-          END_DATE: ${{ github.event.inputs.end_date }}
-        run: python scripts/backfill_dialfire.py
-      - name: Commit history
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/history.json
-          if git diff --staged --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Backfill ${{ github.event.inputs.start_date }}"
-            git push
-            echo "Successfully committed and pushed"
-          fi
+if not CAMPAIGNS:
+    raise ValueError("DIALFIRE_CAMPAIGNS is empty.")
+
+print(f"✓ {len(CAMPAIGNS)} campaigns loaded")
+
+RM_NAMES = {
+    "Gio", "NaomiCiza", "Kay-LeeOrphan", "BrandonNtini",
+    "SadiqaCarelse", "DeclanT", "CameronPaulse",
+}
+
+def is_rm(name):
+    n = name.lower()
+    return any(rm.lower() in n or n in rm.lower() for rm in RM_NAMES)
+
+def get_weeks(start_str, end_str):
+    start  = datetime.strptime(start_str, "%Y-%m-%d").date()
+    end    = datetime.strptime(end_str,   "%Y-%m-%d").date()
+    monday = start - timedelta(days=start.weekday())
+    weeks  = []
+    while monday <= end:
+        sunday = monday + timedelta(days=6)
+        if sunday > end:
+            sunday = end
+        weeks.append((monday, sunday))
+        monday += timedelta(days=7)
+    return weeks
+
+# ── Fix: strip empty string before using END_DATE ─────────────────
+start_date = (os.environ.get("START_DATE") or "").strip()
+if not start_date:
+    raise ValueError("START_DATE is required (e.g. 2026-03-01)")
+
+today_date = datetime.now(timezone.utc).date()
+
+end_date = (os.environ.get("END_DATE") or "").strip()
+if not end_date:
+    end_date = str(today_date - timedelta(days=1))
+
+print(f"\nBackfill range: {start_date} to {end_date}")
+weeks = get_weeks(start_date, end_date)
+print(f"Weeks to fetch: {len(weeks)}\n")
+
+def fetch_campaign(campaign, date_from, date_to):
+    cid   = campaign["id"]
+    token = campaign["token"]
+    label = campaign.get("name", cid)
+    base    = f"https://app.dialfire.com/api/campaigns/{cid}"
+    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
+    params  = {
+        "from": str(date_from), "to": str(date_to),
+        "groupBy": "agent", "reportType": "processing",
+    }
+    try:
+        r = requests.get(f"{base}/firebase/reports/calls",
+                         headers=headers, params=params, timeout=20)
+        if r.status_code == 401:
+            print(f"  [{label}] Unauthorized - skipping")
+            return []
+        if r.status_code == 404:
+            r = requests.get(f"{base}/reports/contacts",
+                             headers=headers, params=params, timeout=20)
+        r.raise_for_status()
+        raw = r.json()
+        return raw if isinstance(raw, list) else raw.get("data", raw.get("rows", []))
+    except requests.RequestException as e:
+        print(f"  [{label}] Failed: {e}")
+        return []
+
+def parse_row(row, campaign_name):
+    name  = (row.get("agent_name") or row.get("username") or
+             row.get("user") or row.get("name", "Unknown")).strip()
+    calls     = int(row.get("total_calls")   or row.get("calls",   0) or 0)
+    success   = int(row.get("total_success") or row.get("success", 0) or 0)
+    rental    = int(row.get("rental_lead")   or row.get("rental",  0) or 0)
+    seller    = int(row.get("seller_lead")   or row.get("seller",  0) or 0)
+    email     = int(row.get("got_email")     or row.get("email",   0) or 0)
+    wt_raw    = float(row.get("work_time") or row.get("worktime") or row.get("dial_time") or 0)
+    work_time = round(wt_raw / 3600, 2) if wt_raw > 1000 else round(wt_raw, 2)
+    return {
+        "name": name, "calls": calls, "success": success,
+        "rental": rental, "seller": seller, "email": email,
+        "workTime": work_time, "_campaigns": [campaign_name],
+    }
+
+def merge_agents(all_rows):
+    merged = {}
+    for row in all_rows:
+        name = row["name"]
+        if not name or name.lower() in ("unknown", "system", ""):
+            continue
+        if name in merged:
+            m = merged[name]
+            m["calls"]     += row["calls"]
+            m["success"]   += row["success"]
+            m["rental"]    += row["rental"]
+            m["seller"]    += row["seller"]
+            m["email"]     += row["email"]
+            m["workTime"]   = round(m["workTime"] + row["workTime"], 2)
+            m["_campaigns"] = list(set(m["_campaigns"] + row["_campaigns"]))
+        else:
+            merged[name] = dict(row)
+    return list(merged.values())
+
+def div_string(camps):
+    return " / ".join(sorted(set(c for c in camps if c)))
+
+def main():
+    data_dir  = os.path.join(os.path.dirname(__file__), "..", "data")
+    hist_path = os.path.join(data_dir, "history.json")
+
+    history = {}
+    if os.path.exists(hist_path):
+        with open(hist_path) as f:
+            history = json.load(f)
+    print(f"Existing history entries: {len(history)}\n")
+
+    for wi, (monday, sunday) in enumerate(weeks, 1):
+        key = str(monday)
+        print(f"[{wi}/{len(weeks)}] {monday} to {sunday}")
+
+        if key in history:
+            print(f"  Already have this week - skipping")
+            continue
+
+        all_rows = []
+        for campaign in CAMPAIGNS:
+            rows = fetch_campaign(campaign, monday, sunday)
+            for row in rows:
+                parsed = parse_row(row, campaign.get("name", campaign["id"]))
+                if parsed["calls"] > 0:
+                    all_rows.append(parsed)
+            time.sleep(0.25)
+
+        agents = merge_agents(all_rows)
+        rm, fancy = [], []
+        for a in agents:
+            div   = div_string(a["_campaigns"])
+            clean = {k: v for k, v in a.items() if k != "_campaigns"}
+            if is_rm(a["name"]):
+                rm.append(clean)
+            else:
+                fancy.append({**clean, "div": div})
+
+        print(f"  {len(agents)} agents, {sum(a['calls'] for a in agents):,} calls")
+
+        history[key] = {
+            "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "rm":        sorted(rm,    key=lambda x: x["calls"], reverse=True),
+            "fancy":     sorted(fancy, key=lambda x: x["calls"], reverse=True),
+        }
+
+    with open(hist_path, "w") as f:
+        json.dump(history, f, indent=2)
+
+    print(f"\nBackfill complete - {len(history)} weeks in history.json")
+
+if __name__ == "__main__":
+    main()
