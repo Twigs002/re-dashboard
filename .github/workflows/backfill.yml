@@ -1,0 +1,38 @@
+name: Backfill Historical Data
+
+on:
+  workflow_dispatch:
+    inputs:
+      start_date:
+        description: 'Start date (YYYY-MM-DD) — e.g. 2026-03-01'
+        required: true
+        default: '2026-03-01'
+      end_date:
+        description: 'End date (YYYY-MM-DD) — leave blank for yesterday'
+        required: false
+        default: ''
+
+jobs:
+  backfill:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - run: pip install requests
+      - name: Run backfill
+        env:
+          DIALFIRE_CAMPAIGNS: ${{ secrets.DIALFIRE_CAMPAIGNS }}
+          START_DATE: ${{ github.event.inputs.start_date }}
+          END_DATE: ${{ github.event.inputs.end_date }}
+        run: python scripts/backfill_dialfire.py
+      - name: Commit history
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/history.json
+          git diff --staged --quiet || git commit -m "📦 Backfill ${{ github.event.inputs.start_date }}"
+          git push
