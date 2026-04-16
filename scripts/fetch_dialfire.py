@@ -2,6 +2,7 @@
 DialFire Multi-Campaign -> weekly_data.json fetcher
 Uses the correct DialFire REST API as confirmed by DialFire support.
 group0=date&group1=user is required (date must come first).
+Response data lives in raw["groups"] as a nested date->user tree.
 """
 
 import os, json, time, requests
@@ -40,8 +41,6 @@ def fetch_campaign(campaign):
     label = campaign.get("name", cid)
     base  = f"https://api.dialfire.com/api/campaigns/{cid}"
 
-    # Try multiple combinations of template, path type, token param, and date format.
-    # group0=date MUST come before group1=user per DialFire docs.
     attempts = [
         ("editsDef_v2", "metadata", "_token_",      {"days": "7"}),
         ("editsDef_v2", "metadata", "_token_",      {"from": DATE_FROM, "to": DATE_TO}),
@@ -96,37 +95,41 @@ def fetch_campaign(campaign):
 
 def extract_rows(raw, label):
     if isinstance(raw, list):
-        return raw
+        return flatten_groups(raw)
     if isinstance(raw, dict):
+        if "groups" in raw:
+            print(f"    [{label}] Parsing groups tree...")
+            return flatten_groups(raw["groups"])
         if "data" in raw and isinstance(raw["data"], list):
             return raw["data"]
         if "rows" in raw:
             return raw["rows"]
-        if "children" in raw or "key" in raw:
-            return flatten_tree(raw)
         print(f"    [{label}] Response keys: {list(raw.keys())}")
-        if raw and all(isinstance(v, dict) for v in raw.values()):
-            return list(raw.values())
     return []
 
-def flatten_tree(node, depth=0):
+def flatten_groups(groups, depth=0):
     rows = []
-    if depth > 5:
+    if depth > 5 or not isinstance(groups, list):
         return rows
-    children = node.get("children") or node.get("data") or node.get("rows") or []
-    if isinstance(children, list):
-        for child in children:
-            if isinstance(child, dict):
-                if child.get("children") or child.get("data"):
-                    rows.extend(flatten_tree(child, depth + 1))
-                else:
-                    rows.append(child)
+    for node in groups:
+        if not isinstance(node, dict):
+            continue
+        key        = node.get("key", "")
+        values     = node.get("values") or {}
+        sub_groups = node.get("groups")
+        if sub_groups:
+            rows.extend(flatten_groups(sub_groups, depth + 1))
+        else:
+            row = {"name": key}
+            if isinstance(values, dict):
+                row.update(values)
+            rows.append(row)
     return rows
 
 def parse_row(row, campaign_name):
     name = (
-        row.get("key") or row.get("user") or row.get("agent_name") or
-        row.get("username") or row.get("name", "Unknown")
+        row.get("name") or row.get("key") or row.get("user") or
+        row.get("agent_name") or row.get("username") or "Unknown"
     )
     if isinstance(name, dict):
         name = name.get("label") or name.get("value") or "Unknown"
@@ -223,7 +226,6 @@ def main():
     }
 
     data_dir = os.path.join(os.path.dirname(__file__), "..", "data")
-
     with open(os.path.join(data_dir, "weekly_data.json"), "w") as f:
         json.dump(output, f, indent=2)
     print(f"\nSaved -> data/weekly_data.json")
