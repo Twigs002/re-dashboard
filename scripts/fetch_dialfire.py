@@ -1,8 +1,7 @@
 """
 DialFire Multi-Campaign -> weekly_data.json fetcher
-Uses the correct DialFire REST API as confirmed by DialFire support:
-  GET https://api.dialfire.com/api/campaigns/{id}/reports/{template}/report/{locale}
-  Auth: access_token={token} as a query parameter
+Uses the correct DialFire REST API as confirmed by DialFire support.
+group0=date&group1=user is required (date must come first).
 """
 
 import os, json, time, requests
@@ -41,44 +40,56 @@ def fetch_campaign(campaign):
     label = campaign.get("name", cid)
     base  = f"https://api.dialfire.com/api/campaigns/{cid}"
 
-    templates = [
-        ("editsDef_v2", {
-            "asTree": "true", "group0": "user",
-            "column0": "completed", "column1": "success", "column2": "workTime",
-            "column3": "rental_lead", "column4": "seller_lead", "column5": "got_email",
-            "from": DATE_FROM, "to": DATE_TO, "access_token": token,
-        }),
-        ("dialerStat", {
-            "asTree": "true", "group0": "user",
-            "column0": "count", "column1": "connects", "column2": "workTime",
-            "from": DATE_FROM, "to": DATE_TO, "access_token": token,
-        }),
-        ("activities", {
-            "asTree": "true", "group0": "user",
-            "from": DATE_FROM, "to": DATE_TO, "access_token": token,
-        }),
+    # Try multiple combinations of template, path type, token param, and date format.
+    # group0=date MUST come before group1=user per DialFire docs.
+    attempts = [
+        ("editsDef_v2", "metadata", "_token_",      {"days": "7"}),
+        ("editsDef_v2", "metadata", "_token_",      {"from": DATE_FROM, "to": DATE_TO}),
+        ("editsDef_v2", "report",   "access_token", {"from": DATE_FROM, "to": DATE_TO}),
+        ("dialerStat",  "report",   "access_token", {"from": DATE_FROM, "to": DATE_TO}),
+        ("dialerStat",  "metadata", "_token_",      {"days": "7"}),
     ]
 
     try:
-        for template, params in templates:
-            url = f"{base}/reports/{template}/report/de_DE"
+        for template, path_type, token_key, date_params in attempts:
+            params = {
+                "asTree":  "true",
+                "group0":  "date",
+                "group1":  "user",
+                "column0": "completed",
+                "column1": "success",
+                "column2": "workTime",
+                token_key: token,
+                **date_params,
+            }
+            if template == "dialerStat":
+                params["column0"] = "count"
+                params["column1"] = "connects"
+
+            url = f"{base}/reports/{template}/{path_type}/de_DE"
             r = requests.get(url, params=params, timeout=30)
-            print(f"  [{label}] {template} -> HTTP {r.status_code}")
-            if r.status_code in (403, 404):
-                continue
+            print(f"  [{label}] {template}/{path_type} ({token_key}) -> HTTP {r.status_code}")
+
             if r.status_code == 401:
                 print(f"  WARNING [{label}] 401 Unauthorized - check token")
                 return []
-            if r.status_code != 200:
-                print(f"  WARNING [{label}] HTTP {r.status_code}: {r.text[:200]}")
+            if r.status_code in (403, 404):
                 continue
+            if r.status_code != 200:
+                print(f"  [{label}] HTTP {r.status_code}: {r.text[:200]}")
+                continue
+
             raw  = r.json()
             rows = extract_rows(raw, label)
             if rows:
-                print(f"  OK [{label}] {len(rows)} agent rows via {template}")
+                print(f"  OK [{label}] {len(rows)} rows via {template}/{path_type}")
                 return rows
-        print(f"  FAIL [{label}] No data from any template")
+            else:
+                print(f"  [{label}] {template}/{path_type} returned 0 rows - trying next")
+
+        print(f"  FAIL [{label}] No data from any combination")
         return []
+
     except Exception as e:
         print(f"  FAIL [{label}] Error: {e}")
         return []
@@ -94,32 +105,34 @@ def extract_rows(raw, label):
         if "children" in raw or "key" in raw:
             return flatten_tree(raw)
         print(f"    [{label}] Response keys: {list(raw.keys())}")
-        if all(isinstance(v, dict) for v in raw.values()):
+        if raw and all(isinstance(v, dict) for v in raw.values()):
             return list(raw.values())
     return []
 
 def flatten_tree(node, depth=0):
     rows = []
-    if depth > 3:
+    if depth > 5:
         return rows
-    children = node.get("children") or node.get("data") or []
+    children = node.get("children") or node.get("data") or node.get("rows") or []
     if isinstance(children, list):
         for child in children:
             if isinstance(child, dict):
-                if not child.get("children"):
-                    rows.append(child)
-                else:
+                if child.get("children") or child.get("data"):
                     rows.extend(flatten_tree(child, depth + 1))
+                else:
+                    rows.append(child)
     return rows
 
 def parse_row(row, campaign_name):
-    name = (row.get("key") or row.get("user") or row.get("agent_name")
-            or row.get("username") or row.get("name", "Unknown"))
+    name = (
+        row.get("key") or row.get("user") or row.get("agent_name") or
+        row.get("username") or row.get("name", "Unknown")
+    )
     if isinstance(name, dict):
         name = name.get("label") or name.get("value") or "Unknown"
     name = str(name).strip()
 
-    def safe_int(row, *keys):
+    def safe_int(*keys):
         for k in keys:
             v = row.get(k)
             if v is not None and v != "":
@@ -127,7 +140,7 @@ def parse_row(row, campaign_name):
                 except: pass
         return 0
 
-    def safe_float(row, *keys):
+    def safe_float(*keys):
         for k in keys:
             v = row.get(k)
             if v is not None and v != "":
@@ -135,12 +148,12 @@ def parse_row(row, campaign_name):
                 except: pass
         return 0.0
 
-    calls     = safe_int(row, "completed", "total_calls", "calls", "count", "connects")
-    success   = safe_int(row, "success", "total_success")
-    rental    = safe_int(row, "rental_lead", "rental")
-    seller    = safe_int(row, "seller_lead", "seller")
-    email     = safe_int(row, "got_email", "email")
-    wt_raw    = safe_float(row, "workTime", "work_time", "worktime", "dial_time")
+    calls     = safe_int("completed", "total_calls", "calls", "count", "connects")
+    success   = safe_int("success", "total_success")
+    rental    = safe_int("RENTAL_LEAD", "rental_lead", "rental")
+    seller    = safe_int("LEAD", "seller_lead", "seller")
+    email     = safe_int("GOT_EMAIL", "got_email", "email")
+    wt_raw    = safe_float("workTime", "work_time", "worktime", "dial_time")
     work_time = round(wt_raw / 3600, 2) if wt_raw > 1000 else round(wt_raw, 2)
 
     return {
@@ -210,6 +223,7 @@ def main():
     }
 
     data_dir = os.path.join(os.path.dirname(__file__), "..", "data")
+
     with open(os.path.join(data_dir, "weekly_data.json"), "w") as f:
         json.dump(output, f, indent=2)
     print(f"\nSaved -> data/weekly_data.json")
