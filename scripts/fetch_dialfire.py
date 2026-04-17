@@ -176,19 +176,35 @@ def fetch_report(campaign):
 
 
 def _try_fetch(url, params, label, tag):
-    """Make a single request and return rows if successful, else []."""
+    """
+    Make a request and return rows if successful, else [].
+    Handles HTTP 202 (async report generation) by polling up to 5 times.
+    Returns None on 401 (bad token — stop trying this campaign).
+    """
     try:
         r = requests.get(url, params=params, timeout=30)
         status_line = f"  [{label}] {tag} -> HTTP {r.status_code}"
 
+        # ── 202 Accepted: DialFire is building the report async ───
+        if r.status_code == 202:
+            print(f"{status_line}  (async, polling...)")
+            for attempt in range(6):
+                time.sleep(4)
+                r = requests.get(url, params=params, timeout=30)
+                if r.status_code == 200:
+                    break
+                if r.status_code == 202:
+                    print(f"    [{label}] still 202, attempt {attempt+1}/6...")
+                    continue
+                # Any other code — give up on this attempt
+                break
+            status_line = f"  [{label}] {tag} -> HTTP {r.status_code} (after poll)"
+
         if r.status_code == 401:
             print(f"{status_line}  (bad token)")
             return None   # stop trying for this campaign
-        if r.status_code == 403:
-            print(f"{status_line}  (forbidden)")
-            return []
-        if r.status_code == 404:
-            print(f"{status_line}  (not found)")
+        if r.status_code in (403, 404):
+            print(f"{status_line}")
             return []
         if r.status_code != 200:
             snippet = r.text[:120].replace("\n", " ")
@@ -199,7 +215,12 @@ def _try_fetch(url, params, label, tag):
         try:
             raw = r.json()
         except Exception:
-            print(f"{status_line}  (not JSON)")
+            # Might be CSV — try parsing as plain text rows
+            text = r.text.strip()
+            if "\n" in text:
+                print(f"{status_line}  (non-JSON text, {len(text)} chars — skipping)")
+            else:
+                print(f"{status_line}  (not JSON)")
             return []
 
         rows = extract_rows(raw, label, tag)
@@ -216,36 +237,68 @@ def _try_fetch(url, params, label, tag):
 
 def extract_rows(raw, label, tag=""):
     """Parse any DialFire response shape into a flat list of dicts."""
-    # Print a one-line summary of what we received
     if isinstance(raw, dict):
-        keys = list(raw.keys())[:8]
-        grp  = raw.get("groups")
-        grp_len = len(grp) if isinstance(grp, list) else ("dict" if isinstance(grp, dict) else type(grp).__name__ if grp is not None else "missing")
+        keys    = list(raw.keys())[:8]
+        grp     = raw.get("groups")
+        grp_len = (len(grp) if isinstance(grp, list)
+                   else "dict" if isinstance(grp, dict)
+                   else type(grp).__name__ if grp is not None
+                   else "missing")
         print(f"    [{label}] keys={keys}  groups={grp_len}")
 
-    # List response
+    # Plain list response
     if isinstance(raw, list):
-        rows = flatten_groups(raw)
-        return rows
+        return flatten_groups(raw)
 
     if not isinstance(raw, dict):
         return []
 
-    # "groups" key — nested tree
+    # "groups" key — can be a list (tree) OR a dict
     if "groups" in raw:
         g = raw["groups"]
-        if isinstance(g, list) and g:
-            first_keys = list(g[0].keys()) if isinstance(g[0], dict) else []
-            print(f"    [{label}] first group keys: {first_keys}")
-        rows = flatten_groups(g if isinstance(g, list) else [])
-        return rows
+
+        # ── List of nodes ─────────────────────────────────────────
+        if isinstance(g, list):
+            if g:
+                first_keys = list(g[0].keys()) if isinstance(g[0], dict) else []
+                print(f"    [{label}] first group keys: {first_keys}")
+            return flatten_groups(g)
+
+        # ── Dict of nodes (keyed by user name or date) ────────────
+        # e.g. {"AgentName": {"completed": 5, "workTime": 3600}, ...}
+        # or   {"AgentName": {"groups": {...}, "values": {...}}, ...}
+        if isinstance(g, dict) and g:
+            print(f"    [{label}] groups is dict with {len(g)} keys, sample: {list(g.keys())[:5]}")
+            rows = []
+            for key, val in g.items():
+                if not isinstance(val, dict):
+                    continue
+                # If the value itself has sub-groups, recurse
+                if "groups" in val:
+                    sub = val["groups"]
+                    if isinstance(sub, dict):
+                        for subkey, subval in sub.items():
+                            if isinstance(subval, dict):
+                                row = {"name": subkey}
+                                row.update(subval.get("values", subval))
+                                rows.append(row)
+                    elif isinstance(sub, list):
+                        rows.extend(flatten_groups(sub))
+                else:
+                    # Leaf: key is agent name, val contains metrics
+                    values = val.get("values", val)
+                    row = {"name": key}
+                    if isinstance(values, dict):
+                        row.update(values)
+                    rows.append(row)
+            return rows
 
     # Flat "data" or "rows" arrays
     for key in ("data", "rows", "records", "items", "result"):
         if key in raw and isinstance(raw[key], list):
             return raw[key]
 
-    # If there are numeric values at the top level with a "key" field — single row
+    # Single-row: top-level dict with a "key" field
     if "key" in raw:
         return [raw]
 
