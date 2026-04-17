@@ -1,5 +1,5 @@
 """
-DialFire - debug run to find token location in tenant API response
+DialFire Tenant-based fetcher - using permissions.token for each campaign
 """
 
 import os, json, time, requests
@@ -16,6 +16,9 @@ last_mon = today - timedelta(days=today.weekday() + 7)
 last_sun = last_mon + timedelta(days=6)
 DATE_FROM = last_mon.strftime("%Y-%m-%d")
 DATE_TO   = last_sun.strftime("%Y-%m-%d")
+
+# How many days back to cover the full last week from today
+days_back = (today - last_mon).days + 1
 
 RM_NAMES = {
     "Gio", "NaomiCiza", "Kay-LeeOrphan", "BrandonNtini",
@@ -36,92 +39,72 @@ def get_all_campaigns():
     data = r.json()
     campaigns = data if isinstance(data, list) else data.get("data", data.get("campaigns", []))
     print(f"Found {len(campaigns)} campaigns\n")
-
-    # Print FULL data for first 3 campaigns so we can find the token field
-    print("=" * 60)
-    print("FULL DATA FOR FIRST 3 CAMPAIGNS (to find token location):")
-    print("=" * 60)
-    for i, c in enumerate(campaigns[:3]):
-        print(f"\n--- Campaign {i+1} ---")
-        print(json.dumps(c, indent=2))
-    print("=" * 60 + "\n")
-
     return campaigns
-
-def extract_token(campaign):
-    for key in ("token", "access_token", "campaignToken", "apiToken", "api_token"):
-        if campaign.get(key):
-            return campaign[key]
-    perms = campaign.get("permissions")
-    if isinstance(perms, dict):
-        for key in ("token", "access_token", "campaignToken", "campaignAPI"):
-            if perms.get(key):
-                return perms[key]
-    elif isinstance(perms, list):
-        for p in perms:
-            if isinstance(p, dict):
-                for key in ("token", "access_token", "campaignToken"):
-                    if p.get(key):
-                        return p[key]
-    features = campaign.get("features")
-    if isinstance(features, dict):
-        for key in ("token", "access_token", "campaignToken"):
-            if features.get(key):
-                return features[key]
-    return None
 
 def fetch_report(campaign):
     cid   = campaign.get("id", "")
     label = campaign.get("title") or campaign.get("name") or cid
-
     if not cid:
         return []
 
-    token = extract_token(campaign)
+    # Token is at permissions.token
+    token = campaign.get("permissions", {}).get("token", "")
     if not token:
-        print(f"  [{label}] No campaign token found — skipping")
         return []
 
     headers = {"Authorization": f"Bearer {token}"}
     base    = f"https://api.dialfire.com/api/campaigns/{cid}"
 
-    for template in ["editsDef_v2", "dialerStat", "activities"]:
-        url = f"{base}/reports/{template}/report/de_DE"
-        params = {
-            "asTree": "true",
-            "group0": "date",
-            "group1": "user",
-            "from":   DATE_FROM,
-            "to":     DATE_TO,
-        }
-        if template == "editsDef_v2":
-            params.update({"column0": "completed", "column1": "success", "column2": "workTime"})
-        elif template == "dialerStat":
-            params.update({"column0": "count", "column1": "connects", "column2": "workTime"})
+    # Try metadata endpoint (worked before for HTTP 200)
+    # and report endpoint as fallback
+    # Using days= param as shown in DialFire support example
+    attempts = [
+        (f"{base}/reports/editsDef_v2/metadata/de_DE",
+         {"asTree": "true", "group0": "date", "group1": "user",
+          "column0": "completed", "column1": "success", "column2": "workTime",
+          "days": str(days_back)}),
+        (f"{base}/reports/editsDef_v2/metadata/de_DE",
+         {"asTree": "true", "group0": "date", "group1": "user",
+          "column0": "completed", "column1": "success", "column2": "workTime",
+          "from": DATE_FROM, "to": DATE_TO}),
+        (f"{base}/reports/dialerStat/metadata/de_DE",
+         {"asTree": "true", "group0": "date", "group1": "user",
+          "column0": "count", "column1": "connects", "column2": "workTime",
+          "days": str(days_back)}),
+        # report endpoint without group1 (as per dialerStat support example)
+        (f"{base}/reports/dialerStat/report/de_DE",
+         {"asTree": "true", "group0": "user",
+          "column0": "count", "column1": "connects", "column2": "workTime",
+          "from": DATE_FROM, "to": DATE_TO}),
+    ]
 
-        try:
+    try:
+        for url, params in attempts:
+            endpoint_short = url.split("/reports/")[1]
             r = requests.get(url, headers=headers, params=params, timeout=30)
-            print(f"  [{label}] {template} -> HTTP {r.status_code}")
+            print(f"  [{label}] {endpoint_short} -> HTTP {r.status_code}")
 
             if r.status_code in (401, 403):
                 print(f"  [{label}] Auth failed")
                 return []
             if r.status_code in (404, 500):
                 if r.status_code == 500:
-                    print(f"  [{label}] 500: {r.text[:100]}")
+                    print(f"  [{label}] 500: {r.text[:80]}")
                 continue
             if r.status_code != 200:
-                print(f"  [{label}] HTTP {r.status_code}: {r.text[:100]}")
+                print(f"  [{label}] HTTP {r.status_code}: {r.text[:80]}")
                 continue
 
             raw  = r.json()
             rows = extract_rows(raw, label)
             if rows:
-                print(f"  OK [{label}] {len(rows)} rows via {template}")
+                print(f"  OK [{label}] {len(rows)} rows via {endpoint_short}")
                 return rows
+            else:
+                print(f"  [{label}] 0 rows from {endpoint_short}")
 
-        except Exception as e:
-            print(f"  [{label}] Error: {e}")
+    except Exception as e:
+        print(f"  [{label}] Error: {e}")
 
     return []
 
@@ -132,13 +115,17 @@ def extract_rows(raw, label):
         if "groups" in raw:
             g = raw["groups"]
             if isinstance(g, list) and len(g) > 0:
-                print(f"    [{label}] {len(g)} groups found")
-                print(f"    [{label}] First group: {str(g[0])[:200]}")
-            return flatten_groups(g)
+                print(f"    [{label}] {len(g)} date groups found")
+                print(f"    [{label}] First group sample: {str(g[0])[:300]}")
+                return flatten_groups(g)
+            else:
+                print(f"    [{label}] groups is empty — no data for this period")
+                return []
         for key in ("data", "rows", "items", "result"):
             if key in raw and isinstance(raw[key], list):
                 return raw[key]
         print(f"    [{label}] Keys: {list(raw.keys())}")
+        print(f"    [{label}] Sample: {str(raw)[:300]}")
     return []
 
 def flatten_groups(groups, depth=0):
@@ -222,7 +209,7 @@ def main():
     print(f"\n{'='*55}")
     print(f"DialFire Tenant Fetcher")
     print(f"Date: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}")
-    print(f"Week: {DATE_FROM} to {DATE_TO}")
+    print(f"Week: {DATE_FROM} to {DATE_TO} ({days_back} days back)")
     print(f"{'='*55}\n")
 
     campaigns = get_all_campaigns()
