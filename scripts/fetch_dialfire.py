@@ -109,6 +109,7 @@ def fetch_report(campaign):
             "timespan":     f"0-{DAYS_BACK}day",
         }
         rows = _try_fetch(url, params, label, f"{template}/report[minimal]")
+        if rows is None: return []  # 401 bad token — stop
         if rows:
             return rows
 
@@ -121,6 +122,7 @@ def fetch_report(campaign):
             "group0":       "user",
         }
         rows = _try_fetch(url, params, label, f"{template}/report[group=user]")
+        if rows is None: return []  # 401 bad token — stop
         if rows:
             return rows
 
@@ -132,6 +134,7 @@ def fetch_report(campaign):
             "timespan":     f"0-{DAYS_BACK}day",
         }
         rows = _try_fetch(url, params, label, f"{template}/report[minimal]")
+        if rows is None: return []  # 401 bad token — stop
         if rows:
             return rows
 
@@ -144,6 +147,7 @@ def fetch_report(campaign):
             "group0":  "user",
         }
         rows = _try_fetch(url, params, label, f"{template}/metadata[group=user]")
+        if rows is None: return []  # 401 bad token — stop
         if rows:
             return rows
 
@@ -157,6 +161,7 @@ def fetch_report(campaign):
             "group0":  "user",
         }
         rows = _try_fetch(url, params, label, f"{template}/metadata[from/to]")
+        if rows is None: return []  # 401 bad token — stop
         if rows:
             return rows
 
@@ -171,6 +176,7 @@ def fetch_report(campaign):
             "group1":  "user",
         }
         rows = _try_fetch(url, params, label, f"{template}/metadata[tree]")
+        if rows is None: return []  # 401 bad token — stop
         if rows:
             return rows
 
