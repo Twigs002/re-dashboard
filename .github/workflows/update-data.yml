@@ -42,4 +42,5 @@ jobs:
           git add data/weekly_data.json data/history.json
           git diff --staged --quiet && echo "No changes to commit" || \
             git commit -m "auto-update $(date -u +'%Y-%m-%d')"
+          git pull --rebase origin main
           git push
