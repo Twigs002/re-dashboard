@@ -6,8 +6,13 @@ per-campaign agent statistics via the editsDef_v2 report.
 
 KEY FIX (DialFire support confirmed):
   - Use asTree=true  ->  API returns JSON  (NOT CSV)
-  - JSON structure: {"groups": {user: {col0: val,...}}, "columnDefs": [...], "groupDefs": [...]}
-  - Must unwrap "groups" key and map col0/col1/... to columnDefs names
+  - JSON structure: {
+      "groups": {user: {"col0": val, "col1": val, ...}},
+      "groupDefs": [{"name": "user", "title": "..."}, ...],
+      "columnDefs": [{"name": "completed", "title": "...", "conf": {}}, ...]
+    }
+  - columnDefs is a list of OBJECTS with "name" field (not a list of strings)
+  - groups key may be absent if no data for this timespan
 
 Secrets required:
   DIALFIRE_TENANT_ID    - e.g. 3f88c548
@@ -65,11 +70,9 @@ def get_all_campaigns():
 
         if r.status_code == 403:
             print(f"  Body: {r.text[:500]}")
-            print()
             print("  *** TENANT TOKEN IS INVALID OR EXPIRED ***")
             print("  Update DIALFIRE_TENANT_TOKEN in: GitHub repo -> Settings -> Secrets -> Actions")
-            print()
-            print("  Trying access_token as query param instead...")
+            # Try access_token as query param fallback
             r2 = requests.get(url, params={"access_token": TENANT_TOKEN}, timeout=30)
             print(f"  Tenant API (access_token param) -> HTTP {r2.status_code}")
             if r2.status_code == 200:
@@ -98,13 +101,34 @@ def _parse_campaigns(data):
     return []
 
 
+# ── Helper: extract column names from DialFire columnDefs ────────────────────
+def _extract_col_names(col_defs_raw):
+    """
+    columnDefs can be:
+      - list of strings: ["completed", "success", ...]
+      - list of objects: [{"name": "completed", "title": "...", "conf": {}}, ...]
+    Returns list of name strings.
+    """
+    if not col_defs_raw:
+        return []
+    result = []
+    for item in col_defs_raw:
+        if isinstance(item, str):
+            result.append(item)
+        elif isinstance(item, dict):
+            result.append(item.get("name", ""))
+        else:
+            result.append(str(item))
+    return result
+
+
+def _extract_group_names(group_defs_raw):
+    """Same as above but for groupDefs."""
+    return _extract_col_names(group_defs_raw)
+
+
 # ── Fetch JSON report using asTree=true ──────────────────────────────────────
 def fetch_json_report(url, params, label, tag):
-    """
-    Fetch a report with asTree=true to get JSON.
-    Handles HTTP 202 (async polling).
-    Returns (json_data, column_defs) tuple, or (None, None) on 401.
-    """
     params = dict(params)
     params["asTree"] = "true"
 
@@ -120,118 +144,109 @@ def fetch_json_report(url, params, label, tag):
                 if r.status_code == 200:
                     break
                 if r.status_code == 202:
-                    print(f"    [{label}] still 202, attempt {attempt+1}/6...")
+                    print(f"    [{label}] still 202, {attempt+1}/6...")
                     continue
                 break
             status_line = f"  [{label}] {tag} -> HTTP {r.status_code} (after poll)"
 
         if r.status_code == 401:
             print(f"{status_line}  (bad token - skip)")
-            return None, None
+            return None
 
         if r.status_code in (404, 500):
-            snippet = r.text[:80].replace('\n', ' ')
-            print(f"{status_line}  (skip: {snippet})")
-            return [], []
+            print(f"{status_line}  (skip)")
+            return []
 
         if r.status_code != 200:
             print(f"{status_line}  (unexpected status)")
-            return [], []
+            return []
 
         ct = r.headers.get("Content-Type", "")
         print(f"{status_line}  ct={ct[:40]}")
 
         try:
             data = r.json()
-            return data, None  # caller will extract columnDefs from data
+            return data
         except Exception as e:
-            print(f"    [{label}] JSON parse failed: {e}")
-            print(f"    First 200 chars: {r.text[:200]}")
-            return [], []
+            print(f"    [{label}] JSON parse failed: {e} / first 100: {r.text[:100]}")
+            return []
 
     except Exception as e:
         print(f"  [{label}] {tag} -> Exception: {e}")
-        return [], []
+        return []
 
 
 # ── Extract agent rows from DialFire asTree=true JSON ────────────────────────
-def extract_rows_from_tree(data, label, column_names):
+def extract_rows_from_tree(data, label):
     """
-    DialFire asTree=true returns:
+    DialFire asTree=true JSON:
       {
         "groups": {
           "UserName": {"col0": 123, "col1": 45, ...},
-          "UserName2": {...},
           ...
         },
-        "groupDefs": ["user"],
-        "columnDefs": ["completed", "success", "successRate", "workTime", ...]
+        "groupDefs": [{"name": "user", "title": "..."}, ...],
+        "columnDefs": [{"name": "completed", ...}, {"name": "success", ...}, ...]
       }
 
-    With group0=date, group1=user (nested):
+    Nested (group0=date, group1=user):
       {
         "groups": {
           "2026-04-13": {
-            "groups": {
-              "UserName": {"col0": 10, ...},
-              ...
-            }
-          },
-          ...
+            "groups": {"UserName": {"col0": 5, ...}},
+            "columnDefs": [...],
+            "groupDefs": [...]
+          }
         },
-        "groupDefs": ["date", "user"],
+        "groupDefs": [{"name": "date", ...}],
         "columnDefs": [...]
       }
 
-    column_names: list of column names from params (e.g. ["completed","success","workTime"])
-    Returns list of {"name": user, "completed": N, "success": N, "workTime": N, "successRate": R}
+    Returns list of {"name": user, "completed": N, "success": N, "workTime": N}
     """
     rows = []
 
     if not isinstance(data, dict):
-        print(f"  [{label}] Non-dict response: {type(data)}")
         return rows
 
-    # Get columnDefs from the response (overrides our params if present)
-    col_defs = data.get("columnDefs", column_names or [])
-    group_defs = data.get("groupDefs", [])
-    groups = data.get("groups", {})
+    # Extract column names (handle both string and object formats)
+    col_defs_raw  = data.get("columnDefs", [])
+    group_defs_raw = data.get("groupDefs", [])
+    groups        = data.get("groups", {})
 
-    print(f"  [{label}] groupDefs={group_defs}  columnDefs={col_defs[:6]}")
+    col_names   = _extract_col_names(col_defs_raw)
+    group_names = _extract_group_names(group_defs_raw)
+
+    print(f"  [{label}] groupDefs={group_names}  colNames={col_names[:5]}")
 
     if not groups:
-        print(f"  [{label}] No 'groups' key or empty groups")
-        return rows
+        # Try "children" key as fallback
+        groups = data.get("children", {})
+        if not groups:
+            print(f"  [{label}] No groups data")
+            return rows
 
-    # Build colname->colN mapping
-    col_map = {name: f"col{i}" for i, name in enumerate(col_defs)}
-    print(f"  [{label}] col_map sample: {dict(list(col_map.items())[:5])}")
+    # Build col index -> col name mapping
+    col_map = {f"col{i}": name for i, name in enumerate(col_names)}
 
-    # Check depth: is top-level key a date or a user?
+    # Check if this is nested (top keys are dates, each containing "groups")
     sample_keys = list(groups.keys())[:3]
-    print(f"  [{label}] groups keys sample: {sample_keys}")
-
     date_pattern = re.compile(r'^\d{4}-\d{2}-\d{2}$')
     looks_like_dates = bool(sample_keys) and all(
         date_pattern.match(str(k)) for k in sample_keys if k not in ('total', '--', '')
     )
 
-    if looks_like_dates and group_defs and len(group_defs) > 1:
-        # Nested: {date: {groups: {user: {colN: val}}}}
+    if looks_like_dates:
+        # Nested structure: {date: {"groups": {user: stats}}}
         user_agg = {}
-        for date_key, date_data in groups.items():
-            if date_key in ('total', '--', ''):
+        for date_key, date_node in groups.items():
+            if date_key in ('total', '--', '') or not isinstance(date_node, dict):
                 continue
-            # date_data may be {"groups": {user: stats}, "columnDefs": [...]}
-            if isinstance(date_data, dict) and "groups" in date_data:
-                inner_groups = date_data["groups"]
-                inner_col_defs = date_data.get("columnDefs", col_defs)
-                inner_col_map = {name: f"col{i}" for i, name in enumerate(inner_col_defs)}
-            elif isinstance(date_data, dict):
-                inner_groups = date_data
-                inner_col_map = col_map
-            else:
-                continue
+
+            inner_groups   = date_node.get("groups", {})
+            inner_col_raw  = date_node.get("columnDefs", col_defs_raw)
+            inner_col_names = _extract_col_names(inner_col_raw)
+            inner_col_map  = {f"col{i}": name for i, name in enumerate(inner_col_names)}
 
             for user_key, stats in inner_groups.items():
                 if user_key in ('total', '--', '') or not isinstance(stats, dict):
@@ -239,42 +254,43 @@ def extract_rows_from_tree(data, label, column_names):
                 if user_key not in user_agg:
                     user_agg[user_key] = {"name": user_key, "completed": 0, "success": 0, "workTime": 0}
                 agg = user_agg[user_key]
-                agg["completed"] += _safe_int(_get_col(stats, inner_col_map, "completed", "count", 0))
-                agg["success"]   += _safe_int(_get_col(stats, inner_col_map, "success", None, 0))
-                agg["workTime"]  += _safe_int(_get_col(stats, inner_col_map, "workTime", None, 0))
+                agg["completed"] += _safe_int(_get_col(stats, inner_col_map, "completed", "count"))
+                agg["success"]   += _safe_int(_get_col(stats, inner_col_map, "success"))
+                agg["workTime"]  += _safe_int(_get_col(stats, inner_col_map, "workTime"))
 
         for agg in user_agg.values():
-            if agg["completed"] > 0:
-                agg["successRate"] = round(agg["success"] / agg["completed"] * 100, 1)
-            else:
-                agg["successRate"] = 0.0
+            agg["successRate"] = round(agg["success"] / agg["completed"] * 100, 1) if agg["completed"] > 0 else 0.0
         rows = list(user_agg.values())
 
     else:
-        # Flat: {user: {colN: val}}
+        # Flat: {user: {col0: val, col1: val, ...}}
         for user_key, stats in groups.items():
             if user_key in ('total', '--', '') or not isinstance(stats, dict):
                 continue
+            completed = _safe_int(_get_col(stats, col_map, "completed", "count"))
+            success   = _safe_int(_get_col(stats, col_map, "success"))
+            work_time = _safe_int(_get_col(stats, col_map, "workTime"))
+            sr        = _safe_float(_get_col(stats, col_map, "successRate", "success_rate", default=0))
             rows.append({
                 "name":        user_key,
-                "completed":   _safe_int(_get_col(stats, col_map, "completed", "count", 0)),
-                "success":     _safe_int(_get_col(stats, col_map, "success", None, 0)),
-                "workTime":    _safe_int(_get_col(stats, col_map, "workTime", None, 0)),
-                "successRate": _safe_float(_get_col(stats, col_map, "successRate", "success_rate", 0)),
+                "completed":   completed,
+                "success":     success,
+                "workTime":    work_time,
+                "successRate": sr,
             })
 
     print(f"  [{label}] Extracted {len(rows)} user rows")
     return rows
 
 
-def _get_col(stats, col_map, *names):
-    """Get a value from stats dict using colN key, trying multiple column names. Last arg is default."""
-    default = names[-1]
-    for name in names[:-1]:
-        key = col_map.get(name)
-        if key and key in stats:
-            return stats[key]
-        # Also try direct name (in case stats uses named keys)
+def _get_col(stats, col_map, *names, default=0):
+    """Try to get a value by column name (mapped to col0/col1/...) or direct key."""
+    for name in names:
+        # Try mapped key (e.g. col_map["completed"] -> "col2")
+        mapped = col_map.get(name)
+        if mapped and mapped in stats:
+            return stats[mapped]
+        # Try direct name key
         if name in stats:
             return stats[name]
     return default
@@ -293,8 +309,8 @@ def _safe_float(v):
         return 0.0
 
 
-# ── Parse a single agent row into dashboard format ───────────────────────────
-def parse_row(row, label):
+# ── Parse an agent row into dashboard format ─────────────────────────────────
+def parse_row(row, label=""):
     name = str(row.get("name", row.get("user", ""))).strip()
     if not name or name.lower() in ("total", "--", "grand total"):
         return None
@@ -306,9 +322,7 @@ def parse_row(row, label):
     if calls == 0:
         return None
 
-    # workTime in DialFire is seconds
     work_hrs = work_secs / 3600.0 if work_secs > 0 else 0
-
     cph = round(calls / work_hrs, 1) if work_hrs > 0 else 0
     sr  = _safe_float(row.get("successRate", 0))
     if sr == 0 and calls > 0:
@@ -330,62 +344,63 @@ def fetch_report(campaign, index, total):
     cid   = campaign.get("id", campaign.get("_id", ""))
     cname = campaign.get("name", cid)
     token = campaign.get("permissions", {}).get("token", "")
-
     label = f"{index+1}/{total} {cname[:25]}"
 
     if not token:
         return []
 
     base = f"https://api.dialfire.com/api/campaigns/{cid}"
-    base_params = {
-        "access_token": token,
-        "timespan":     f"0-{DAYS_BACK}day",
-    }
+    base_params = {"access_token": token, "timespan": f"0-{DAYS_BACK}day"}
 
-    col_names_edits  = ["completed", "success", "successRate", "workTime", "success_p_h", "completed_p_h"]
-    col_names_dialer = ["count", "connects", "answeringmachines", "norespons", "connectRate"]
-
-    # Strategy 1: editsDef_v2/report group0=user (flat, direct per-user)
-    url1 = f"{base}/reports/editsDef_v2/report/{LOCALE}"
-    p1   = {**base_params, "group0": "user",
-             "column0": "completed", "column1": "success", "column2": "successRate",
-             "column3": "workTime", "column4": "success_p_h", "column5": "completed_p_h"}
-    data1, _ = fetch_json_report(url1, p1, label, "editsDef_v2/report[user]")
+    # Strategy 1: editsDef_v2/report group0=user (flat per-user)
+    data1 = fetch_json_report(
+        f"{base}/reports/editsDef_v2/report/{LOCALE}",
+        {**base_params, "group0": "user",
+         "column0": "completed", "column1": "success", "column2": "successRate",
+         "column3": "workTime", "column4": "success_p_h", "column5": "completed_p_h"},
+        label, "editsDef_v2/report[user]"
+    )
     if data1 is None: return []
-    if data1:
-        rows = extract_rows_from_tree(data1, label, col_names_edits)
+    if isinstance(data1, dict) and data1:
+        rows = extract_rows_from_tree(data1, label)
         if rows: return rows
 
     # Strategy 2: dialerStat/report group0=user
-    url2 = f"{base}/reports/dialerStat/report/{LOCALE}"
-    p2   = {**base_params, "group0": "user",
-             "column0": "count", "column1": "connects",
-             "column2": "answeringmachines", "column3": "norespons", "column4": "connectRate"}
-    data2, _ = fetch_json_report(url2, p2, label, "dialerStat/report[user]")
+    data2 = fetch_json_report(
+        f"{base}/reports/dialerStat/report/{LOCALE}",
+        {**base_params, "group0": "user",
+         "column0": "count", "column1": "connects",
+         "column2": "answeringmachines", "column3": "norespons", "column4": "connectRate"},
+        label, "dialerStat/report[user]"
+    )
     if data2 is None: return []
-    if data2:
-        rows = extract_rows_from_tree(data2, label, col_names_dialer)
+    if isinstance(data2, dict) and data2:
+        rows = extract_rows_from_tree(data2, label)
         if rows: return rows
 
     # Strategy 3: editsDef_v2/metadata group0=date group1=user
-    url3 = f"{base}/reports/editsDef_v2/metadata/{LOCALE}"
-    p3   = {**base_params, "group0": "date", "group1": "user",
-             "column0": "completed", "column1": "success",
-             "column2": "successRate", "column3": "workTime"}
-    data3, _ = fetch_json_report(url3, p3, label, "editsDef_v2/metadata[date,user]")
+    data3 = fetch_json_report(
+        f"{base}/reports/editsDef_v2/metadata/{LOCALE}",
+        {**base_params, "group0": "date", "group1": "user",
+         "column0": "completed", "column1": "success",
+         "column2": "successRate", "column3": "workTime"},
+        label, "editsDef_v2/metadata[date,user]"
+    )
     if data3 is None: return []
-    if data3:
-        rows = extract_rows_from_tree(data3, label, ["completed","success","successRate","workTime"])
+    if isinstance(data3, dict) and data3:
+        rows = extract_rows_from_tree(data3, label)
         if rows: return rows
 
     # Strategy 4: dialerStat/report group0=date group1=user
-    url4 = f"{base}/reports/dialerStat/report/{LOCALE}"
-    p4   = {**base_params, "group0": "date", "group1": "user",
-             "column0": "count", "column1": "connects", "column2": "connectRate"}
-    data4, _ = fetch_json_report(url4, p4, label, "dialerStat/report[date,user]")
+    data4 = fetch_json_report(
+        f"{base}/reports/dialerStat/report/{LOCALE}",
+        {**base_params, "group0": "date", "group1": "user",
+         "column0": "count", "column1": "connects", "column2": "connectRate"},
+        label, "dialerStat/report[date,user]"
+    )
     if data4 is None: return []
-    if data4:
-        rows = extract_rows_from_tree(data4, label, ["count","connects","connectRate"])
+    if isinstance(data4, dict) and data4:
+        rows = extract_rows_from_tree(data4, label)
         if rows: return rows
 
     return []
@@ -400,9 +415,7 @@ def main():
 
     campaigns = get_all_campaigns()
     if not campaigns:
-        print()
         print("FATAL: No campaigns returned from tenant API.")
-        print("Check that DIALFIRE_TENANT_TOKEN is valid.")
         raise SystemExit(1)
 
     print(f"Found {len(campaigns)} campaigns total")
@@ -422,22 +435,22 @@ def main():
 
     merged = {}
     for row in all_rows:
-        parsed = parse_row(row, "merge")
+        parsed = parse_row(row)
         if not parsed:
             continue
         name = parsed["name"]
         if name not in merged:
             merged[name] = parsed
         else:
-            existing = merged[name]
-            existing["calls"]    += parsed["calls"]
-            existing["success"]  += parsed["success"]
-            existing["workHours"] = round(existing["workHours"] + parsed["workHours"], 2)
-            if existing["workHours"] > 0:
-                existing["cph"] = round(existing["calls"] / existing["workHours"], 1)
-            if existing["calls"] > 0:
-                existing["successRate"] = round(existing["success"] / existing["calls"] * 100, 1)
-            existing["meetsTarget"] = existing["cph"] >= BENCHMARKS["cph"]
+            ex = merged[name]
+            ex["calls"]    += parsed["calls"]
+            ex["success"]  += parsed["success"]
+            ex["workHours"] = round(ex["workHours"] + parsed["workHours"], 2)
+            if ex["workHours"] > 0:
+                ex["cph"] = round(ex["calls"] / ex["workHours"], 1)
+            if ex["calls"] > 0:
+                ex["successRate"] = round(ex["success"] / ex["calls"] * 100, 1)
+            ex["meetsTarget"] = ex["cph"] >= BENCHMARKS["cph"]
 
     print(f"Unique agents after merge: {len(merged)}")
 
@@ -453,7 +466,6 @@ def main():
     fancy_agents.sort(key=lambda x: x["calls"], reverse=True)
 
     print(f"RM: {len(rm_agents)} | Fancy Callers: {len(fancy_agents)}")
-    print()
     if rm_agents:
         print("RM agents:")
         for a in rm_agents:
