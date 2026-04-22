@@ -17,7 +17,8 @@ import requests
 LOCALE = "en_US"
 DAYS_BACK = 7
 TIMEZONE = pytz.timezone("Africa/Johannesburg")
-API_BASE = "https://api.dialfire.com"
+API_BASE      = "https://api.dialfire.com"
+API_BASE_APP  = "https://app.dialfire.com"
 
 BENCHMARKS = {
     "cph": 45,
@@ -31,20 +32,23 @@ RM_NAMES = {
     "SadiqaCarelse", "DeclanT", "CameronPaulse",
 }
 
-# hs_lead_status values that count as seller lead
+# hs_lead_status values
 SELLER_STATUSES = {"LEAD"}
-# hs_lead_status values that count as rental lead
 RENTAL_STATUSES = {"RENTAL_LEAD"}
-# hs_lead_status values that count as email obtained
-EMAIL_STATUSES = {"GOT_EMAIL"}
+EMAIL_STATUSES  = {"GOT_EMAIL"}
 
 
 # -- Poll helper --------------------------------------------------------------
-def fetch_json(url, params, label, tag, timeout=30, max_polls=8):
+def fetch_json(url, params, label, tag, timeout=30, max_polls=8, headers=None):
     try:
-        r = requests.get(url, params=params, timeout=timeout)
+        r = requests.get(url, params=params, timeout=timeout,
+                         headers=headers or {})
         if r.status_code == 202:
-            poll_url = r.json().get("url") or r.json().get("statusUrl")
+            poll_url = None
+            try:
+                poll_url = r.json().get("url") or r.json().get("statusUrl")
+            except Exception:
+                pass
             if poll_url:
                 for _ in range(max_polls):
                     time.sleep(2)
@@ -152,88 +156,153 @@ def extract_rows(data, label):
     return rows
 
 
-# -- Fetch lead/email counts from contacts API --------------------------------
+# -- Fetch lead/email counts from contacts list API ---------------------------
 def fetch_lead_counts(cid, token, period_start, period_end, label):
     """
-    Try multiple Dialfire API endpoints to get hs_lead_status counts per agent.
-    Returns dict: {agent_name: {"seller": N, "rental": N, "email": N}}
+    Fetch contacts for the campaign and count hs_lead_status per agent.
+    Tries multiple endpoint approaches. Returns:
+      {agent_name: {"seller": N, "rental": N, "email": N}}
     """
     result = {}
-    base = f"{API_BASE}/api/campaigns/{cid}"
-    ts = f"{DAYS_BACK}-0day"
+    date_from = str(period_start)
+    date_to   = str(period_end)
+    ts        = f"{DAYS_BACK}-0day"
 
-    endpoints_to_try = [
-        # Option A: transactions report grouped by user+hs_lead_status
+    # ---------------------------------------------------------------------------
+    # Approach A: Contact list via api.dialfire.com with access_token param
+    # GET /api/campaigns/{cid}/contacts?access_token=...&from=YYYY-MM-DD&to=YYYY-MM-DD
+    # ---------------------------------------------------------------------------
+    approaches = [
+        # A: api.dialfire.com contacts list with date params
         {
-            "url": f"{base}/reports/transactions/{LOCALE}",
+            "url": f"{API_BASE}/api/campaigns/{cid}/contacts",
             "params": {
                 "access_token": token,
-                "asTree": "true",
-                "timespan": ts,
-                "group0": "user",
-                "group1": "hs_lead_status",
-                "column0": "completed",
+                "from": date_from,
+                "to": date_to,
+                "limit": 1000,
             },
-            "tag": "transactions/user+hs_lead_status",
+            "headers": None,
+            "tag": "api/contacts?from=to",
         },
-        # Option B: contacts report grouped by user+hs_lead_status
+        # B: api.dialfire.com contacts with timespan
         {
-            "url": f"{base}/reports/contacts/{LOCALE}",
+            "url": f"{API_BASE}/api/campaigns/{cid}/contacts",
             "params": {
                 "access_token": token,
-                "asTree": "true",
                 "timespan": ts,
-                "group0": "user",
-                "group1": "hs_lead_status",
-                "column0": "completed",
+                "limit": 1000,
             },
-            "tag": "contacts/user+hs_lead_status",
+            "headers": None,
+            "tag": "api/contacts?timespan",
         },
-        # Option C: editsDef_v2 with hs_lead_status as second group
+        # C: app.dialfire.com contacts with Bearer auth
         {
-            "url": f"{base}/reports/editsDef_v2/report/{LOCALE}",
+            "url": f"{API_BASE_APP}/api/campaigns/{cid}/contacts",
             "params": {
-                "access_token": token,
-                "asTree": "true",
-                "timespan": ts,
-                "group0": "user",
-                "group1": "hs_lead_status",
-                "column0": "completed",
+                "from": date_from,
+                "to": date_to,
+                "limit": 1000,
             },
-            "tag": "editsDef_v2/user+hs_lead_status",
+            "headers": {"Authorization": f"Bearer {token}"},
+            "tag": "app/contacts?from=to Bearer",
         },
-        # Option D: disposition grouped by user+disposition (original attempt)
+        # D: api.dialfire.com firebase contacts report with access_token
         {
-            "url": f"{base}/reports/editsDef_v2/report/{LOCALE}",
+            "url": f"{API_BASE}/api/campaigns/{cid}/firebase/reports/contacts",
+            "params": {
+                "access_token": token,
+                "from": date_from,
+                "to": date_to,
+                "groupBy": "agent",
+            },
+            "headers": None,
+            "tag": "api/firebase/reports/contacts",
+        },
+        # E: app.dialfire.com firebase reports contacts with Bearer
+        {
+            "url": f"{API_BASE_APP}/api/campaigns/{cid}/firebase/reports/contacts",
+            "params": {
+                "from": date_from,
+                "to": date_to,
+                "groupBy": "agent",
+            },
+            "headers": {"Authorization": f"Bearer {token}"},
+            "tag": "app/firebase/reports/contacts Bearer",
+        },
+        # F: editsDef_v2 with timespan grouped by user only (get columns)
+        # Then parse individual contact fields from the extended data
+        {
+            "url": f"{API_BASE}/api/campaigns/{cid}/reports/editsDef_v2/report/{LOCALE}",
             "params": {
                 "access_token": token,
                 "asTree": "true",
                 "timespan": ts,
                 "group0": "user",
-                "group1": "disposition",
                 "column0": "completed",
+                "column1": "success",
+                "column2": "successRate",
+                "column3": "workTime",
+                "column4": "hs_lead_status",
             },
-            "tag": "editsDef_v2/user+disposition",
+            "headers": None,
+            "tag": "editsDef_v2/user with hs_lead_status column",
         },
     ]
 
-    for ep in endpoints_to_try:
-        data = fetch_json(ep["url"], ep["params"], label, ep["tag"])
-        print(f"  [{label}] lead-counts via {ep['tag']}: type={type(data).__name__}")
+    for ap in approaches:
+        data = fetch_json(ap["url"], ap["params"], label, ap["tag"],
+                          headers=ap["headers"])
+        print(f"  [{label}] lead-counts via {ap['tag']}: type={type(data).__name__}")
 
         if data is None:
-            print(f"  [{label}] 403 on {ep['tag']}")
+            print(f"  [{label}]   -> 403")
             continue
+
+        # Handle list response (contacts list)
+        if isinstance(data, list) and len(data) > 0:
+            print(f"  [{label}]   -> list with {len(data)} items - checking structure")
+            # Check if items have hs_lead_status and user/agent fields
+            sample = data[0] if data else {}
+            print(f"  [{label}]   sample keys: {list(sample.keys())[:10]}")
+
+            has_status = any("hs_lead_status" in str(item) for item in data[:5])
+            if has_status:
+                print(f"  [{label}]   -> has hs_lead_status! parsing...")
+                for item in data:
+                    if not isinstance(item, dict):
+                        continue
+                    status = str(item.get("hs_lead_status", "")).strip().upper()
+                    agent  = str(item.get("user") or item.get("agent") or
+                                item.get("username") or item.get("name") or "").strip()
+                    if not agent:
+                        continue
+                    if agent not in result:
+                        result[agent] = {"seller": 0, "rental": 0, "email": 0}
+                    if status in SELLER_STATUSES:
+                        result[agent]["seller"] += 1
+                    elif status in RENTAL_STATUSES:
+                        result[agent]["rental"] += 1
+                    elif status in EMAIL_STATUSES:
+                        result[agent]["email"] += 1
+
+                if result:
+                    print(f"  [{label}]   -> SUCCESS! counts: {result}")
+                    return result
+            else:
+                print(f"  [{label}]   -> no hs_lead_status in list response")
+            continue
+
+        # Handle dict response (grouped report)
         if not isinstance(data, dict):
-            print(f"  [{label}] non-dict, skipping")
             continue
 
         groups = data.get("groups", [])
         if not isinstance(groups, list) or len(groups) == 0:
-            print(f"  [{label}] empty groups on {ep['tag']}")
+            print(f"  [{label}]   -> empty groups")
             continue
 
-        print(f"  [{label}] SUCCESS with {ep['tag']}: {len(groups)} agent groups")
+        print(f"  [{label}]   -> {len(groups)} groups - checking for nested status groups")
 
         for agent_item in groups:
             if not isinstance(agent_item, dict):
@@ -241,7 +310,6 @@ def fetch_lead_counts(cid, token, period_start, period_end, label):
             agent_name = str(agent_item.get("value", agent_item.get("name", ""))).strip()
             if not agent_name:
                 continue
-
             if agent_name not in result:
                 result[agent_name] = {"seller": 0, "rental": 0, "email": 0}
 
@@ -255,7 +323,6 @@ def fetch_lead_counts(cid, token, period_start, period_end, label):
                 status_val = str(status_item.get("value", status_item.get("name", ""))).strip().upper()
                 cols = status_item.get("columns", [])
                 count = int(cols[0]) if (isinstance(cols, list) and len(cols) > 0) else 1
-
                 if status_val in SELLER_STATUSES:
                     result[agent_name]["seller"] += count
                 elif status_val in RENTAL_STATUSES:
@@ -264,10 +331,10 @@ def fetch_lead_counts(cid, token, period_start, period_end, label):
                     result[agent_name]["email"] += count
 
         if result:
-            print(f"  [{label}] lead counts: {result}")
+            print(f"  [{label}]   -> SUCCESS with grouped data: {result}")
             return result
 
-    print(f"  [{label}] All lead-count endpoints failed - leads will be 0")
+    print(f"  [{label}] All lead-count approaches failed - leads will be 0")
     return result
 
 
@@ -295,7 +362,8 @@ def parse_row(row):
     success = _int(row.get("success", 0))
     wt_raw  = row.get("workTime") or row.get("work_time") or row.get("workHours") or 0
     work_h  = _float(wt_raw)
-    # workTime from API is in seconds - convert to hours
+    # workTime from editsDef_v2 is in hours already (e.g. 0.025 = 1.5 min)
+    # Only convert if it looks like seconds (> 1000)
     if work_h > 1000:
         work_h = round(work_h / 3600, 2)
 
@@ -359,9 +427,7 @@ def fetch_campaign(cid, token, index, total, period_start, period_end):
                 rows = extract_rows(data, label)
                 if rows:
                     print(f"  [{label}] SUCCESS with ts={ts}")
-                    # Fetch lead/email counts from contacts API
                     lead_counts = fetch_lead_counts(cid, token, period_start, period_end, label)
-                    # Merge lead counts into rows
                     for row in rows:
                         name = row.get("name", "")
                         if name in lead_counts:
@@ -442,7 +508,6 @@ def main():
             merged[name] = agent
 
     agents = list(merged.values())
-    # Recalculate CPH after merge
     for a in agents:
         a["cph"] = round(a["calls"] / a["workTime"], 1) if a["workTime"] > 0 else 0.0
         is_rm    = a["name"] in RM_NAMES
@@ -476,7 +541,6 @@ def main():
         json.dump(output, f, indent=2)
     print(f"\nWritten to {out_path}")
 
-    # Update history.json
     hist_path = os.path.join(os.path.dirname(__file__), "..", "data", "history.json")
     history = []
     if os.path.exists(hist_path):
@@ -489,7 +553,6 @@ def main():
     if not isinstance(history, list):
         history = []
 
-    # Remove existing entry for this week and prepend new one
     history = [e for e in history if e.get("weekStart") != str(period_start) and
                e.get("week") != week_str and e.get("periodStart") != str(period_start)]
     history.insert(0, {
