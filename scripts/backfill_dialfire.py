@@ -16,13 +16,32 @@ Environment variables:
 import os, json, time, requests
 from datetime import datetime, timedelta, timezone, date
 
-# ── Load campaigns ────────────────────────────────────────────────
-raw = os.environ.get("DIALFIRE_CAMPAIGNS", "[]")
-try:
-    CAMPAIGNS = json.loads(raw)
-except json.JSONDecodeError as e:
-    print(f"❌ Could not parse DIALFIRE_CAMPAIGNS: {e}")
-    raise
+# ── Load campaigns ────────────────────────────────────────────────────
+CAMPAIGNS = []
+
+# Try individual CAMPAIGN_X_ID/TOKEN env vars first (same as daily fetch)
+ch_id  = os.environ.get("CAMPAIGN_CLIENTHUB_ID", "").strip()
+ch_tok = os.environ.get("CAMPAIGN_CLIENTHUB_TOKEN", "").strip()
+if ch_id and ch_tok:
+    CAMPAIGNS.append({"id": ch_id, "token": ch_tok, "name": "CLIENTHUB"})
+
+i = 1
+while True:
+    cid  = os.environ.get(f"CAMPAIGN_{i}_ID", "").strip()
+    ctok = os.environ.get(f"CAMPAIGN_{i}_TOKEN", "").strip()
+    if not cid:
+        break
+    if ctok:
+        CAMPAIGNS.append({"id": cid, "token": ctok, "name": f"CAMP{i}"})
+    i += 1
+
+# Fall back to DIALFIRE_CAMPAIGNS JSON secret
+if not CAMPAIGNS:
+    raw = os.environ.get("DIALFIRE_CAMPAIGNS", "[]")
+    try:
+        CAMPAIGNS = json.loads(raw)
+    except json.JSONDecodeError as e:
+        print(f"Cannot parse DIALFIRE_CAMPAIGNS: {e}")
 
 if not CAMPAIGNS:
     raise ValueError("DIALFIRE_CAMPAIGNS is empty.")
@@ -91,8 +110,8 @@ def fetch_campaign(campaign, date_from, date_to):
     try:
         r = requests.get(f"{base}/firebase/reports/calls",
                          headers=headers, params=params, timeout=20)
-        if r.status_code == 401:
-            print(f"    ⚠ [{label}] Unauthorized — skipping")
+        if r.status_code in (401, 403):
+            print(f"    ⚠ [{label}] HTTP {r.status_code} — token issue, skipping")
             return []
         if r.status_code == 404:
             r = requests.get(f"{base}/reports/contacts",
@@ -113,7 +132,7 @@ def parse_row(row, campaign_name):
     rental  = int(row.get("rental_lead")   or row.get("rental",  0) or 0)
     seller  = int(row.get("seller_lead")   or row.get("seller",  0) or 0)
     email   = int(row.get("got_email")     or row.get("email",   0) or 0)
-    wt_raw  = float(row.get("work_time") or row.get("worktime") or row.get("dial_time") or 0)
+    wt_raw  = float(row.get("workTime") or row.get("work_time") or row.get("worktime") or row.get("dial_time") or 0)
     work_time = round(wt_raw / 3600, 2) if wt_raw > 1000 else round(wt_raw, 2)
     return {
         "name": name, "calls": calls, "success": success,
@@ -149,10 +168,11 @@ def main():
     hist_path = os.path.join(data_dir, "history.json")
 
     # Load existing history so we don't overwrite it
-    history = {}
+    history = []
     if os.path.exists(hist_path):
         with open(hist_path) as f:
-            history = json.load(f)
+            raw2 = json.load(f)
+            history = raw2 if isinstance(raw2, list) else list(raw2.values())
     print(f"📂 Existing history entries: {len(history)}\n")
 
     total_weeks = len(weeks)
@@ -163,8 +183,8 @@ def main():
 
         print(f"\n[{wi}/{total_weeks}] Week {date_from} → {date_to}")
 
-        if key in history:
-            print(f"  ⏭  Already in history — skipping (delete the key to re-fetch)")
+        if any(e.get('weekStart') == key or e.get('week') == key for e in history):
+            print(f"  ⏭  Already in history — skipping")
             continue
 
         all_rows = []
@@ -189,11 +209,15 @@ def main():
         total_calls = sum(a["calls"] for a in agents)
         print(f"  ✓ {len(agents)} agents · {total_calls:,} calls · {len(rm)} RM · {len(fancy)} Fancy")
 
-        history[key] = {
+        history = [e for e in history if e.get("weekStart") != key and e.get("week") != key]
+        history.insert(0, {
             "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "week":      key,
+            "weekStart": key,
+            "weekEnd":   date_to,
             "rm":        sorted(rm,    key=lambda x: x["calls"], reverse=True),
             "fancy":     sorted(fancy, key=lambda x: x["calls"], reverse=True),
-        }
+        })
 
     # Save the full updated history
     with open(hist_path, "w") as f:
