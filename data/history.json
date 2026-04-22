@@ -23,13 +23,54 @@
   {
     "weekStart": "2026-04-15",
     "weekEnd": "2026-04-22",
-    "generated": "2026-04-22T11:43:32.475068+00:00",
-    "rm": [],
+    "generated": "2026-04-22T15:53:34.404393+00:00",
+    "rm": [
+      {
+        "name": "Gio",
+        "calls": 272,
+        "success": 37,
+        "declines": 0,
+        "cph": 45.4,
+        "successRate": 13.6,
+        "workHours": 6.0,
+        "meetsTarget": true
+      },
+      {
+        "name": "NaomiCiza",
+        "calls": 202,
+        "success": 32,
+        "declines": 0,
+        "cph": 44.9,
+        "successRate": 15.8,
+        "workHours": 4.5,
+        "meetsTarget": false
+      },
+      {
+        "name": "DeclanT",
+        "calls": 81,
+        "success": 14,
+        "declines": 0,
+        "cph": 38.5,
+        "successRate": 17.3,
+        "workHours": 2.1,
+        "meetsTarget": false
+      },
+      {
+        "name": "CameronPaulse",
+        "calls": 2,
+        "success": 1,
+        "declines": 0,
+        "cph": 80.0,
+        "successRate": 50.0,
+        "workHours": 0.03,
+        "meetsTarget": true
+      }
+    ],
     "fancy": [
       {
         "name": "\u2014",
-        "calls": 79,
-        "success": 79,
+        "calls": 677,
+        "success": 677,
         "declines": 0,
         "cph": 0.0,
         "successRate": 100.0,
@@ -38,12 +79,12 @@
       },
       {
         "name": "CraigCarroll",
-        "calls": 69,
-        "success": 7,
+        "calls": 101,
+        "success": 18,
         "declines": 0,
-        "cph": 44.9,
-        "successRate": 10.1,
-        "workHours": 1.54,
+        "cph": 39.4,
+        "successRate": 17.8,
+        "workHours": 2.57,
         "meetsTarget": false
       }
     ]
