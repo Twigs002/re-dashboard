@@ -23,8 +23,29 @@
   {
     "weekStart": "2026-04-15",
     "weekEnd": "2026-04-22",
-    "generated": "2026-04-22T06:57:32.536949+00:00",
+    "generated": "2026-04-22T11:43:32.475068+00:00",
     "rm": [],
-    "fancy": []
+    "fancy": [
+      {
+        "name": "\u2014",
+        "calls": 79,
+        "success": 79,
+        "declines": 0,
+        "cph": 0.0,
+        "successRate": 100.0,
+        "workHours": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "CraigCarroll",
+        "calls": 69,
+        "success": 7,
+        "declines": 0,
+        "cph": 44.9,
+        "successRate": 10.1,
+        "workHours": 1.54,
+        "meetsTarget": false
+      }
+    ]
   }
 ]
