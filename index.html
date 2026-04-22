@@ -41,15 +41,6 @@ header{
   height:70px;box-shadow:0 3px 18px rgba(0,0,0,.28);position:sticky;top:0;z-index:200;
 }
 .logo{display:flex;align-items:center;gap:14px}
-/* Quay 1 flag icon (simplified nautical flags in CSS) */
-.logo-flags{
-  display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;
-  gap:2px;width:32px;height:32px;border-radius:5px;overflow:hidden;flex-shrink:0;
-}
-.lf1{background:var(--yellow)}
-.lf2{background:var(--qred)}
-.lf3{background:var(--sky)}
-.lf4{background:var(--yellow)}
 .logo-text h1{
   color:#fff;font-size:13px;font-weight:800;letter-spacing:2px;
   text-transform:uppercase;line-height:1.1
@@ -241,6 +232,7 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
 .ek.yk{border-color:var(--yellow)}
 .ek.gk{border-color:var(--green)}
 .ek.rk{border-color:var(--sky)}
+.ek.sk{border-color:var(--brand)}
 .ek-icon{font-size:28px;margin-bottom:8px}
 .ek-val{font-size:32px;font-weight:900;color:var(--brand);line-height:1}
 .ek.yk .ek-val{color:#9A7800}
@@ -279,28 +271,6 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
 
 <header>
   <div class="logo">
-    <!-- Quay 1 Nautical Flags — Q U A Y 1 -->
-    <svg width="90" height="36" viewBox="0 0 90 36" fill="none" xmlns="http://www.w3.org/2000/svg" style="flex-shrink:0">
-      <!-- Q flag: solid yellow -->
-      <rect x="0" y="0" width="16" height="36" rx="2" fill="#FDC503"/>
-      <!-- U flag: red/white checkered -->
-      <rect x="18" y="0" width="16" height="36" rx="2" fill="#D20A03"/>
-      <rect x="18" y="0" width="8" height="18" rx="0" fill="white" opacity=".9"/>
-      <rect x="26" y="18" width="8" height="18" rx="0" fill="white" opacity=".9"/>
-      <!-- A flag: light blue with white notched swallowtail -->
-      <rect x="36" y="0" width="16" height="36" rx="2" fill="#98C5ED"/>
-      <polygon points="44,6 52,18 44,30" fill="white" opacity=".85"/>
-      <!-- Y flag: yellow base with red diagonal stripes -->
-      <rect x="54" y="0" width="16" height="36" rx="2" fill="#FDC503"/>
-      <line x1="54" y1="0" x2="70" y2="36" stroke="#D20A03" stroke-width="5"/>
-      <line x1="61" y1="0" x2="70" y2="16" stroke="#D20A03" stroke-width="5"/>
-      <line x1="54" y1="20" x2="63" y2="36" stroke="#D20A03" stroke-width="5"/>
-      <!-- 1 flag: red with yellow horizontal band -->
-      <rect x="72" y="0" width="16" height="36" rx="2" fill="#D20A03"/>
-      <rect x="72" y="12" width="16" height="12" fill="#FDC503"/>
-      <!-- underline -->
-      <rect x="0" y="34" width="88" height="2" rx="1" fill="rgba(255,255,255,0.3)"/>
-    </svg>
     <div class="logo-text">
       <h1>Quay 1 International Realty</h1>
       <p>Performance Dashboard &nbsp;·&nbsp; <em>Navigating Success</em></p>
@@ -344,7 +314,16 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
     <div class="exec-kpis" id="exec-kpis">
       <div class="ek"><div class="ek-icon">👥</div><div class="ek-val">—</div><div class="ek-lbl">Active Callers</div><div class="ek-sub">RM + Fancy combined</div></div>
       <div class="ek yk"><div class="ek-icon">📞</div><div class="ek-val">—</div><div class="ek-lbl">Total Calls Made</div><div class="ek-sub">across all callers</div></div>
-      <div class="ek gk"><div class="ek-icon">🏠</div><div class="ek-val">—</div><div class="ek-lbl">Total Leads</div><div class="ek-sub">rental + seller combined</div></div>
+      <div class="ek gk"><div class="ek-icon">&#127968;</div>
+      <div class="ek-val">—</div>
+      <div class="ek-lbl">Seller Leads</div>
+      <div class="ek-sub">this week</div>
+    </div>
+      <div class="ek sk"><div class="ek-icon">&#127968;</div>
+      <div class="ek-val">—</div>
+      <div class="ek-lbl">Rental Leads</div>
+      <div class="ek-sub">this week</div>
+    </div>
       <div class="ek rk"><div class="ek-icon">📧</div><div class="ek-val">—</div><div class="ek-lbl">Emails Collected</div><div class="ek-sub">contact data captured</div></div>
     </div>
     <div id="exec-breakdown">
@@ -698,6 +677,8 @@ function renderExec(){
   const tCallers = execAgents.length;
   const tCalls   = execAgents.reduce((a,d)=>a+d.calls,0);
   const tLeads   = execAgents.reduce((a,d)=>a+d.seller+d.rental,0);
+  const tSeller  = execAgents.reduce((a,d)=>a+d.seller,0);
+  const tRental  = execAgents.reduce((a,d)=>a+d.rental,0);
   const tEmails  = execAgents.reduce((a,d)=>a+d.email,0);
   const avgSR    = tCalls>0 ? execAgents.reduce((a,d)=>a+d.success,0)/tCalls : 0;
 
@@ -714,9 +695,14 @@ function renderExec(){
       <div class="ek-sub">avg success: ${pct(avgSR)}</div>
     </div>
     <div class="ek gk"><div class="ek-icon">🏠</div>
-      <div class="ek-val">${tLeads.toLocaleString()}</div>
-      <div class="ek-lbl">Total Leads</div>
-      <div class="ek-sub">rental + seller</div>
+      <div class="ek-val">${tSeller.toLocaleString()}</div>
+      <div class="ek-lbl">Seller Leads</div>
+      <div class="ek-sub">this week</div>
+    </div>
+    <div class="ek sk"><div class="ek-icon">🏠</div>
+      <div class="ek-val">${tRental.toLocaleString()}</div>
+      <div class="ek-lbl">Rental Leads</div>
+      <div class="ek-sub">this week</div>
     </div>
     <div class="ek rk"><div class="ek-icon">📧</div>
       <div class="ek-val">${tEmails.toLocaleString()}</div>
