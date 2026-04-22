@@ -67,7 +67,7 @@ if not start_date:
 
 today_date  = datetime.now(timezone.utc).date()
 # Default end: yesterday (most recently completed day)
-end_date    = os.environ.get("END_DATE", str(today_date - timedelta(days=1)))
+end_date    = os.environ.get("END_DATE") or str(today_date - timedelta(days=1))
 
 weeks = get_weeks(start_date, end_date)
 print(f"\n📅 Backfill range: {start_date} → {end_date}")
