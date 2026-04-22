@@ -1,5 +1,5 @@
 {
-  "generated": "2026-04-22T16:26:15.186197+00:00",
+  "generated": "2026-04-22T20:33:34.906182+00:00",
   "week": "2026-04-15",
   "periodStart": "2026-04-15",
   "periodEnd": "2026-04-22",
@@ -12,9 +12,9 @@
       "rental": 0,
       "email": 0,
       "cph": 45.3,
-      "successRate": 13.6,
+      "successRate": 0.1,
       "workTime": 6.0,
-      "meetsTarget": true
+      "meetsTarget": false
     },
     {
       "name": "NaomiCiza",
@@ -24,7 +24,7 @@
       "rental": 0,
       "email": 0,
       "cph": 44.9,
-      "successRate": 15.8,
+      "successRate": 0.2,
       "workTime": 4.5,
       "meetsTarget": false
     },
@@ -36,7 +36,7 @@
       "rental": 0,
       "email": 0,
       "cph": 38.6,
-      "successRate": 17.3,
+      "successRate": 0.2,
       "workTime": 2.1,
       "meetsTarget": false
     },
@@ -48,24 +48,12 @@
       "rental": 0,
       "email": 0,
       "cph": 66.7,
-      "successRate": 50.0,
+      "successRate": 0.5,
       "workTime": 0.03,
-      "meetsTarget": true
+      "meetsTarget": false
     }
   ],
   "fancy": [
-    {
-      "name": "\u2014",
-      "calls": 677,
-      "success": 677,
-      "seller": 0,
-      "rental": 0,
-      "email": 0,
-      "cph": 0.0,
-      "successRate": 100.0,
-      "workTime": 0.0,
-      "meetsTarget": false
-    },
     {
       "name": "CraigCarroll",
       "calls": 101,
@@ -74,7 +62,7 @@
       "rental": 0,
       "email": 0,
       "cph": 39.3,
-      "successRate": 17.8,
+      "successRate": 0.2,
       "workTime": 2.57,
       "meetsTarget": false
     }

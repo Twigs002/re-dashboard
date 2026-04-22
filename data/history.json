@@ -1,5 +1,75 @@
 [
   {
+    "generated": "2026-04-22T20:33:34.906182+00:00",
+    "week": "2026-04-15",
+    "weekStart": "2026-04-15",
+    "weekEnd": "2026-04-22",
+    "rm": [
+      {
+        "name": "Gio",
+        "calls": 272,
+        "success": 37,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 45.3,
+        "successRate": 0.1,
+        "workTime": 6.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "NaomiCiza",
+        "calls": 202,
+        "success": 32,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 44.9,
+        "successRate": 0.2,
+        "workTime": 4.5,
+        "meetsTarget": false
+      },
+      {
+        "name": "DeclanT",
+        "calls": 81,
+        "success": 14,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 38.6,
+        "successRate": 0.2,
+        "workTime": 2.1,
+        "meetsTarget": false
+      },
+      {
+        "name": "CameronPaulse",
+        "calls": 2,
+        "success": 1,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 66.7,
+        "successRate": 0.5,
+        "workTime": 0.03,
+        "meetsTarget": false
+      }
+    ],
+    "fancy": [
+      {
+        "name": "CraigCarroll",
+        "calls": 101,
+        "success": 18,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 39.3,
+        "successRate": 0.2,
+        "workTime": 2.57,
+        "meetsTarget": false
+      }
+    ]
+  },
+  {
     "weekStart": "2026-04-06",
     "weekEnd": "2026-04-20",
     "generated": "2026-04-20T21:58:51.176769+00:00",
@@ -19,87 +89,5 @@
     "generated": "2026-04-21T07:04:02.048549+00:00",
     "rm": [],
     "fancy": []
-  },
-  {
-    "weekStart": "2026-04-15",
-    "weekEnd": "2026-04-22",
-    "week": "2026-04-15",
-    "generated": "2026-04-22T16:26:15.186197+00:00",
-    "rm": [
-      {
-        "name": "Gio",
-        "calls": 272,
-        "success": 37,
-        "seller": 0,
-        "rental": 0,
-        "email": 0,
-        "cph": 45.3,
-        "successRate": 13.6,
-        "workTime": 6.0,
-        "meetsTarget": true
-      },
-      {
-        "name": "NaomiCiza",
-        "calls": 202,
-        "success": 32,
-        "seller": 0,
-        "rental": 0,
-        "email": 0,
-        "cph": 44.9,
-        "successRate": 15.8,
-        "workTime": 4.5,
-        "meetsTarget": false
-      },
-      {
-        "name": "DeclanT",
-        "calls": 81,
-        "success": 14,
-        "seller": 0,
-        "rental": 0,
-        "email": 0,
-        "cph": 38.6,
-        "successRate": 17.3,
-        "workTime": 2.1,
-        "meetsTarget": false
-      },
-      {
-        "name": "CameronPaulse",
-        "calls": 2,
-        "success": 1,
-        "seller": 0,
-        "rental": 0,
-        "email": 0,
-        "cph": 66.7,
-        "successRate": 50.0,
-        "workTime": 0.03,
-        "meetsTarget": true
-      }
-    ],
-    "fancy": [
-      {
-        "name": "\u2014",
-        "calls": 677,
-        "success": 677,
-        "seller": 0,
-        "rental": 0,
-        "email": 0,
-        "cph": 0.0,
-        "successRate": 100.0,
-        "workTime": 0.0,
-        "meetsTarget": false
-      },
-      {
-        "name": "CraigCarroll",
-        "calls": 101,
-        "success": 18,
-        "seller": 0,
-        "rental": 0,
-        "email": 0,
-        "cph": 39.3,
-        "successRate": 17.8,
-        "workTime": 2.57,
-        "meetsTarget": false
-      }
-    ]
   }
 ]
