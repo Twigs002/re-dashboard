@@ -5,6 +5,7 @@ Fetches every Mon-Sun week between START_DATE and END_DATE,
 and writes each week into history.json.
 
 Uses the same api.dialfire.com + access_token approach as fetch_dialfire.py.
+Skips weeks that already have real agent data (rm or fancy not empty).
 
 Environment variables:
   CAMPAIGN_CLIENTHUB_ID / CAMPAIGN_CLIENTHUB_TOKEN  (preferred)
@@ -225,22 +226,27 @@ def main():
     except (FileNotFoundError, json.JSONDecodeError):
         history = []
 
-    existing_keys = set()
+    # Build a set of week keys that have REAL data (non-empty rm or fancy)
+    weeks_with_data = set()
     for e in history:
-        if e.get("weekStart"):
-            existing_keys.add(e["weekStart"])
-        if e.get("week"):
-            existing_keys.add(e["week"])
+        has_data = (len(e.get("rm", [])) > 0) or (len(e.get("fancy", [])) > 0)
+        if has_data:
+            if e.get("weekStart"):
+                weeks_with_data.add(e["weekStart"])
+            if e.get("week"):
+                weeks_with_data.add(e["week"])
 
     print(f" Existing history entries: {len(history)}")
+    print(f" Weeks with real data: {len(weeks_with_data)}")
 
     total_weeks = len(weeks)
     for week_idx, (date_from, date_to) in enumerate(weeks):
         key = str(date_from)
         print(f"\n***{week_idx+1}/{total_weeks}*** Week {date_from} -> {date_to}")
 
-        if key in existing_keys:
-            print(f"  Already in history -- skipping")
+        # Only skip if this week already has REAL data
+        if key in weeks_with_data:
+            print(f"  Already has data -- skipping")
             continue
 
         agents = {}
@@ -273,6 +279,7 @@ def main():
 
         print(f"  {len(agents)} agents, {sum(v['calls'] for v in agents.values())} calls, {len(rm)} RM, {len(fancy)} Fancy")
 
+        # Remove any existing (empty) entry for this week, then insert fresh
         history = [e for e in history if e.get("weekStart") != key and e.get("week") != key]
         history.insert(0, {
             "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
