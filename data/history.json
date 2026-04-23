@@ -1,5 +1,26 @@
 [
   {
+    "generated": "2026-04-23T06:35:37.531808+00:00",
+    "week": "2026-04-16",
+    "weekStart": "2026-04-16",
+    "weekEnd": "2026-04-23",
+    "rm": [],
+    "fancy": [
+      {
+        "name": "CraigCarroll",
+        "calls": 203,
+        "success": 31,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 37.0,
+        "successRate": 0.2,
+        "workTime": 5.48,
+        "meetsTarget": false
+      }
+    ]
+  },
+  {
     "generated": "2026-04-23T06:30:58Z",
     "week": "2026-04-20",
     "weekStart": "2026-04-20",

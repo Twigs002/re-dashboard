@@ -1,69 +1,20 @@
 {
-  "generated": "2026-04-22T20:39:17.808650+00:00",
-  "week": "2026-04-15",
-  "periodStart": "2026-04-15",
-  "periodEnd": "2026-04-22",
-  "rm": [
-    {
-      "name": "Gio",
-      "calls": 272,
-      "success": 37,
-      "seller": 0,
-      "rental": 0,
-      "email": 0,
-      "cph": 45.3,
-      "successRate": 0.1,
-      "workTime": 6.0,
-      "meetsTarget": false
-    },
-    {
-      "name": "NaomiCiza",
-      "calls": 202,
-      "success": 32,
-      "seller": 0,
-      "rental": 0,
-      "email": 0,
-      "cph": 44.9,
-      "successRate": 0.2,
-      "workTime": 4.5,
-      "meetsTarget": false
-    },
-    {
-      "name": "DeclanT",
-      "calls": 81,
-      "success": 14,
-      "seller": 0,
-      "rental": 0,
-      "email": 0,
-      "cph": 38.6,
-      "successRate": 0.2,
-      "workTime": 2.1,
-      "meetsTarget": false
-    },
-    {
-      "name": "CameronPaulse",
-      "calls": 2,
-      "success": 1,
-      "seller": 0,
-      "rental": 0,
-      "email": 0,
-      "cph": 66.7,
-      "successRate": 0.5,
-      "workTime": 0.03,
-      "meetsTarget": false
-    }
-  ],
+  "generated": "2026-04-23T06:35:37.531808+00:00",
+  "week": "2026-04-16",
+  "periodStart": "2026-04-16",
+  "periodEnd": "2026-04-23",
+  "rm": [],
   "fancy": [
     {
       "name": "CraigCarroll",
-      "calls": 101,
-      "success": 18,
+      "calls": 203,
+      "success": 31,
       "seller": 0,
       "rental": 0,
       "email": 0,
-      "cph": 39.3,
+      "cph": 37.0,
       "successRate": 0.2,
-      "workTime": 2.57,
+      "workTime": 5.48,
       "meetsTarget": false
     }
   ]
