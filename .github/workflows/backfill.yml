@@ -25,7 +25,14 @@ jobs:
       - run: pip install requests
       - name: Run backfill
         env:
+          CAMPAIGN_CLIENTHUB_ID: ${{ secrets.CAMPAIGN_CLIENTHUB_ID }}
+          CAMPAIGN_CLIENTHUB_TOKEN: ${{ secrets.CAMPAIGN_CLIENTHUB_TOKEN }}
+          CAMPAIGN_1_ID: ${{ secrets.CAMPAIGN_1_ID }}
+          CAMPAIGN_1_TOKEN: ${{ secrets.CAMPAIGN_1_TOKEN }}
+          CAMPAIGN_2_ID: ${{ secrets.CAMPAIGN_2_ID }}
+          CAMPAIGN_2_TOKEN: ${{ secrets.CAMPAIGN_2_TOKEN }}
           DIALFIRE_CAMPAIGNS: ${{ secrets.DIALFIRE_CAMPAIGNS }}
+          DIALFIRE_TENANT_ID: ${{ secrets.DIALFIRE_TENANT_ID }}
           START_DATE: ${{ github.event.inputs.start_date }}
           END_DATE: ${{ github.event.inputs.end_date }}
         run: python scripts/backfill_dialfire.py
