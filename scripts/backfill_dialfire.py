@@ -1,25 +1,35 @@
 """
 DialFire Historical Backfill Script
 =====================================
-Fetches every Mon–Sun week between START_DATE and today,
+Fetches every Mon-Sun week between START_DATE and END_DATE,
 and writes each week into history.json.
 
-Run this manually via GitHub Actions (backfill.yml workflow)
-to import historical data for a date range.
+Uses the same api.dialfire.com + access_token approach as fetch_dialfire.py.
 
 Environment variables:
-  DIALFIRE_CAMPAIGNS   (same secret as daily script — required)
-  START_DATE           e.g. "2026-03-01" — required
-  END_DATE             e.g. "2026-04-13" — optional, defaults to last completed Sunday
+  CAMPAIGN_CLIENTHUB_ID / CAMPAIGN_CLIENTHUB_TOKEN  (preferred)
+  CAMPAIGN_1_ID / CAMPAIGN_1_TOKEN                  (optional extra campaigns)
+  CAMPAIGN_2_ID / CAMPAIGN_2_TOKEN                  (optional extra campaigns)
+  DIALFIRE_CAMPAIGNS  (fallback JSON list)
+  START_DATE          e.g. "2026-03-01" -- required
+  END_DATE            e.g. "2026-04-13" -- optional, defaults to yesterday
 """
 
 import os, json, time, requests
 from datetime import datetime, timedelta, timezone, date
 
-# ── Load campaigns ────────────────────────────────────────────────────
-CAMPAIGNS = []
+LOCALE = "en_US"
+API_BASE = "https://api.dialfire.com"
 
-# Try individual CAMPAIGN_X_ID/TOKEN env vars first (same as daily fetch)
+RM_NAMES = {
+    "Gio", "NaomiCiza", "Kay-LeeOrphan", "BrandonNtini",
+    "SadiqaCarelse", "DeclanT", "CameronPaulse",
+}
+
+BENCHMARKS = {"cph": 45, "daily_calls": 315, "rm_success_rate": 17, "fc_success_rate": 20}
+
+# Load campaigns (individual vars first, then DIALFIRE_CAMPAIGNS JSON)
+CAMPAIGNS = []
 ch_id  = os.environ.get("CAMPAIGN_CLIENTHUB_ID", "").strip()
 ch_tok = os.environ.get("CAMPAIGN_CLIENTHUB_TOKEN", "").strip()
 if ch_id and ch_tok:
@@ -27,204 +37,257 @@ if ch_id and ch_tok:
 
 i = 1
 while True:
-    cid  = os.environ.get(f"CAMPAIGN_{i}_ID", "").strip()
-    ctok = os.environ.get(f"CAMPAIGN_{i}_TOKEN", "").strip()
-    if not cid:
+    cid = os.environ.get(f"CAMPAIGN_{i}_ID", "").strip()
+    tok = os.environ.get(f"CAMPAIGN_{i}_TOKEN", "").strip()
+    if not cid or not tok:
         break
-    if ctok:
-        CAMPAIGNS.append({"id": cid, "token": ctok, "name": f"CAMP{i}"})
+    CAMPAIGNS.append({"id": cid, "token": tok, "name": f"CAMP{i}"})
     i += 1
 
-# Fall back to DIALFIRE_CAMPAIGNS JSON secret
 if not CAMPAIGNS:
-    raw = os.environ.get("DIALFIRE_CAMPAIGNS", "[]")
-    try:
-        CAMPAIGNS = json.loads(raw)
-    except json.JSONDecodeError as e:
-        print(f"Cannot parse DIALFIRE_CAMPAIGNS: {e}")
+    raw = os.environ.get("DIALFIRE_CAMPAIGNS", "")
+    if raw:
+        try:
+            for c in json.loads(raw):
+                if c.get("id") and c.get("token"):
+                    CAMPAIGNS.append(c)
+        except Exception as e:
+            print(f"Warning: could not parse DIALFIRE_CAMPAIGNS: {e}")
 
 if not CAMPAIGNS:
-    raise ValueError("DIALFIRE_CAMPAIGNS is empty.")
+    raise SystemExit("ERROR: No campaigns configured.")
 
-print(f"✓ {len(CAMPAIGNS)} campaigns loaded")
+print(f"Campaigns loaded: {[c['name'] for c in CAMPAIGNS]}")
 
-# ── RM classification ─────────────────────────────────────────────
-RM_NAMES = {
-    "Gio", "NaomiCiza", "Kay-LeeOrphan", "BrandonNtini",
-    "SadiqaCarelse", "DeclanT", "CameronPaulse",
-}
 
-def is_rm(name):
-    n = name.lower()
-    return any(rm.lower() in n or n in rm.lower() for rm in RM_NAMES)
-
-# ── Build list of all Mon–Sun weeks in range ──────────────────────
 def get_weeks(start_str, end_str):
-    """
-    Returns a list of (monday, sunday) date pairs covering the range.
-    Partial weeks at the end are included as-is.
-    """
     start = datetime.strptime(start_str, "%Y-%m-%d").date()
     end   = datetime.strptime(end_str,   "%Y-%m-%d").date()
-
-    # Snap start back to the Monday of that week
     monday = start - timedelta(days=start.weekday())
-
     weeks = []
     while monday <= end:
         sunday = monday + timedelta(days=6)
         if sunday > end:
-            sunday = end   # partial final week — use today as end
+            sunday = end
         weeks.append((monday, sunday))
         monday += timedelta(days=7)
     return weeks
 
-# ── Determine date range ──────────────────────────────────────────
-start_date = os.environ.get("START_DATE", "")
-if not start_date:
-    raise ValueError("START_DATE environment variable is required (e.g. 2026-03-01)")
 
-today_date  = datetime.now(timezone.utc).date()
-# Default end: yesterday (most recently completed day)
-end_date    = os.environ.get("END_DATE") or str(today_date - timedelta(days=1))
+def fetch_json(url, params, label, tag, max_poll=8):
+    try:
+        r = requests.get(url, params=params, timeout=30)
+        if r.status_code == 202:
+            loc = r.headers.get("Location") or r.headers.get("location")
+            for _ in range(max_poll):
+                time.sleep(3)
+                r2 = requests.get(loc, timeout=30) if loc else r
+                if r2.status_code == 200:
+                    try:
+                        return r2.json()
+                    except Exception:
+                        return {}
+                if r2.status_code == 403:
+                    print(f"  [{label}] {tag} -> 403")
+                    return None
+            return {}
+        if r.status_code in (401, 403):
+            print(f"  [{label}] {tag} -> HTTP {r.status_code} (token issue)")
+            return None
+        if r.status_code == 200:
+            try:
+                return r.json()
+            except Exception as e:
+                print(f"  [{label}] JSON error: {e}")
+                return {}
+        print(f"  [{label}] {tag} -> HTTP {r.status_code}")
+        return {}
+    except Exception as e:
+        print(f"  [{label}] {tag} -> error: {e}")
+        return {}
 
-weeks = get_weeks(start_date, end_date)
-print(f"\n📅 Backfill range: {start_date} → {end_date}")
-print(f"📦 Weeks to fetch: {len(weeks)}\n")
 
-# ── Fetch one campaign for one week ──────────────────────────────
-def fetch_campaign(campaign, date_from, date_to):
+def fetch_campaign_week(campaign, date_from, date_to):
     cid   = campaign["id"]
     token = campaign["token"]
     label = campaign.get("name", cid)
+    base  = f"{API_BASE}/api/campaigns/{cid}"
 
-    base    = f"https://app.dialfire.com/api/campaigns/{cid}"
-    headers = {"Authorization": f"Bearer {token}", "Accept": "application/json"}
-    params  = {
-        "from":       str(date_from),
-        "to":         str(date_to),
-        "groupBy":    "agent",
-        "reportType": "processing",
-    }
+    attempts = [
+        {
+            "url": f"{base}/firebase/reports/calls",
+            "params": {
+                "access_token": token,
+                "from": str(date_from),
+                "to":   str(date_to),
+                "groupBy": "agent",
+                "reportType": "processing",
+            },
+            "tag": "firebase/reports/calls from/to",
+        },
+        {
+            "url": f"{base}/reports/editsDef_v2/report/{LOCALE}",
+            "params": {
+                "access_token": token,
+                "asTree": "true",
+                "from": str(date_from),
+                "to":   str(date_to),
+                "group0": "user",
+                "column0": "completed",
+                "column1": "success",
+                "column2": "successRate",
+                "column3": "workTime",
+            },
+            "tag": "editsDef_v2 from/to",
+        },
+    ]
 
-    try:
-        r = requests.get(f"{base}/firebase/reports/calls",
-                         headers=headers, params=params, timeout=20)
-        if r.status_code in (401, 403):
-            print(f"    ⚠ [{label}] HTTP {r.status_code} — token issue, skipping")
+    for attempt in attempts:
+        data = fetch_json(attempt["url"], attempt["params"], label, attempt["tag"])
+        if data is None:
+            print(f"  [{label}] 403 -- token invalid, skipping campaign")
             return []
-        if r.status_code == 404:
-            r = requests.get(f"{base}/reports/contacts",
-                             headers=headers, params=params, timeout=20)
-        r.raise_for_status()
-        raw = r.json()
-        rows = raw if isinstance(raw, list) else raw.get("data", raw.get("rows", []))
-        return rows
-    except requests.RequestException as e:
-        print(f"    ✗ [{label}] {e}")
-        return []
+        if not data:
+            continue
 
-def parse_row(row, campaign_name):
-    name = (row.get("agent_name") or row.get("username")
-            or row.get("user")    or row.get("name", "Unknown")).strip()
-    calls   = int(row.get("total_calls")   or row.get("calls",   0) or 0)
-    success = int(row.get("total_success") or row.get("success", 0) or 0)
-    rental  = int(row.get("rental_lead")   or row.get("rental",  0) or 0)
-    seller  = int(row.get("seller_lead")   or row.get("seller",  0) or 0)
-    email   = int(row.get("got_email")     or row.get("email",   0) or 0)
-    wt_raw  = float(row.get("workTime") or row.get("work_time") or row.get("worktime") or row.get("dial_time") or 0)
-    work_time = round(wt_raw / 3600, 2) if wt_raw > 1000 else round(wt_raw, 2)
+        rows = []
+        if isinstance(data, list):
+            rows = data
+        elif isinstance(data, dict):
+            grp = data.get("groups", [])
+            if isinstance(grp, list) and len(grp) > 0:
+                rows = grp
+            else:
+                d = data.get("data", data.get("rows", []))
+                if isinstance(d, list):
+                    rows = d
+
+        if rows:
+            print(f"  [{label}] {attempt['tag']} -> {len(rows)} rows")
+            return rows
+
+    print(f"  [{label}] No data for {date_from} -> {date_to}")
+    return []
+
+
+def parse_row(row):
+    name = (
+        row.get("agent_name") or row.get("username") or
+        row.get("user") or row.get("value") or row.get("name", "Unknown")
+    ).strip()
+
+    calls   = int(row.get("completed")  or row.get("total_calls")   or row.get("calls",   0) or 0)
+    success = int(row.get("success")    or row.get("total_success") or 0)
+    wt_raw  = float(row.get("workTime") or row.get("work_time")     or 0)
+    work_hrs = wt_raw / 3600000 if wt_raw > 1000 else wt_raw
+
+    cph = round(calls / work_hrs, 1) if work_hrs > 0 else 0.0
+    sr  = round(success / calls * 100, 1) if calls > 0 else 0.0
+
+    is_rm     = name in RM_NAMES
+    bench_sr  = BENCHMARKS["rm_success_rate"] if is_rm else BENCHMARKS["fc_success_rate"]
+    meets_tgt = (cph >= BENCHMARKS["cph"] and sr >= bench_sr) if calls > 0 else False
+
     return {
-        "name": name, "calls": calls, "success": success,
-        "rental": rental, "seller": seller, "email": email,
-        "workTime": work_time, "_campaigns": [campaign_name],
+        "name":        name,
+        "calls":       calls,
+        "success":     success,
+        "seller":      int(row.get("seller_lead") or row.get("seller") or 0),
+        "rental":      int(row.get("rental_lead") or row.get("rental") or 0),
+        "email":       int(row.get("got_email")   or row.get("email")  or 0),
+        "cph":         cph,
+        "successRate": sr,
+        "workTime":    round(work_hrs, 4),
+        "meetsTarget": meets_tgt,
     }
 
-def merge_agents(all_rows):
-    merged = {}
-    for row in all_rows:
-        name = row["name"]
-        if not name or name.lower() in ("unknown", "system", ""):
-            continue
-        if name in merged:
-            m = merged[name]
-            m["calls"]    += row["calls"]
-            m["success"]  += row["success"]
-            m["rental"]   += row["rental"]
-            m["seller"]   += row["seller"]
-            m["email"]    += row["email"]
-            m["workTime"]  = round(m["workTime"] + row["workTime"], 2)
-            m["_campaigns"] = list(set(m["_campaigns"] + row["_campaigns"]))
-        else:
-            merged[name] = dict(row)
-    return list(merged.values())
 
-def div_string(campaigns_list):
-    return " / ".join(sorted(set(c for c in campaigns_list if c)))
-
-# ── Main backfill loop ────────────────────────────────────────────
 def main():
-    data_dir  = os.path.join(os.path.dirname(__file__), "..", "data")
-    hist_path = os.path.join(data_dir, "history.json")
+    start_date = (os.environ.get("START_DATE") or "").strip()
+    if not start_date:
+        raise ValueError("START_DATE is required (e.g. 2026-03-01)")
 
-    # Load existing history so we don't overwrite it
-    history = []
-    if os.path.exists(hist_path):
+    today_date = datetime.now(timezone.utc).date()
+    end_date   = (os.environ.get("END_DATE") or "").strip() or str(today_date - timedelta(days=1))
+
+    weeks = get_weeks(start_date, end_date)
+    print(f"\n Backfill range: {start_date} to {end_date}")
+    print(f" Weeks to fetch: {len(weeks)}\n")
+
+    hist_path = "data/history.json"
+    try:
         with open(hist_path) as f:
-            raw2 = json.load(f)
-            history = raw2 if isinstance(raw2, list) else list(raw2.values())
-    print(f"📂 Existing history entries: {len(history)}\n")
+            history = json.load(f)
+        if isinstance(history, dict):
+            history = list(history.values())
+        if not isinstance(history, list):
+            history = []
+    except (FileNotFoundError, json.JSONDecodeError):
+        history = []
+
+    existing_keys = set()
+    for e in history:
+        if e.get("weekStart"):
+            existing_keys.add(e["weekStart"])
+        if e.get("week"):
+            existing_keys.add(e["week"])
+
+    print(f" Existing history entries: {len(history)}")
 
     total_weeks = len(weeks)
-    for wi, (monday, sunday) in enumerate(weeks, 1):
-        date_from = str(monday)
-        date_to   = str(sunday)
-        key       = date_from  # week keyed by Monday
+    for week_idx, (date_from, date_to) in enumerate(weeks):
+        key = str(date_from)
+        print(f"\n***{week_idx+1}/{total_weeks}*** Week {date_from} -> {date_to}")
 
-        print(f"\n[{wi}/{total_weeks}] Week {date_from} → {date_to}")
-
-        if any(e.get('weekStart') == key or e.get('week') == key for e in history):
-            print(f"  ⏭  Already in history — skipping")
+        if key in existing_keys:
+            print(f"  Already in history -- skipping")
             continue
 
-        all_rows = []
+        agents = {}
         for campaign in CAMPAIGNS:
-            rows = fetch_campaign(campaign, monday, sunday)
+            rows = fetch_campaign_week(campaign, date_from, date_to)
             for row in rows:
-                parsed = parse_row(row, campaign.get("name", campaign["id"]))
-                if parsed["calls"] > 0:
-                    all_rows.append(parsed)
-            time.sleep(0.25)  # polite delay per campaign
+                parsed = parse_row(row)
+                n = parsed["name"]
+                if not n or n == "Unknown":
+                    continue
+                if n not in agents:
+                    agents[n] = parsed.copy()
+                else:
+                    a = agents[n]
+                    a["calls"]   += parsed["calls"]
+                    a["success"] += parsed["success"]
+                    a["seller"]  += parsed["seller"]
+                    a["rental"]  += parsed["rental"]
+                    a["email"]   += parsed["email"]
+                    total_wt = a["workTime"] + parsed["workTime"]
+                    a["workTime"] = round(total_wt, 4)
+                    a["cph"] = round(a["calls"] / total_wt, 1) if total_wt > 0 else 0.0
+                    a["successRate"] = round(a["success"] / a["calls"] * 100, 1) if a["calls"] > 0 else 0.0
+                    is_rm = n in RM_NAMES
+                    bench_sr = BENCHMARKS["rm_success_rate"] if is_rm else BENCHMARKS["fc_success_rate"]
+                    a["meetsTarget"] = (a["cph"] >= BENCHMARKS["cph"] and a["successRate"] >= bench_sr) if a["calls"] > 0 else False
 
-        agents = merge_agents(all_rows)
-        rm, fancy = [], []
-        for a in agents:
-            div   = div_string(a["_campaigns"])
-            clean = {k: v for k, v in a.items() if k != "_campaigns"}
-            if is_rm(a["name"]):
-                rm.append(clean)
-            else:
-                fancy.append({**clean, "div": div})
+        rm    = [v for v in agents.values() if v["name"] in RM_NAMES]
+        fancy = [v for v in agents.values() if v["name"] not in RM_NAMES]
 
-        total_calls = sum(a["calls"] for a in agents)
-        print(f"  ✓ {len(agents)} agents · {total_calls:,} calls · {len(rm)} RM · {len(fancy)} Fancy")
+        print(f"  {len(agents)} agents, {sum(v['calls'] for v in agents.values())} calls, {len(rm)} RM, {len(fancy)} Fancy")
 
         history = [e for e in history if e.get("weekStart") != key and e.get("week") != key]
         history.insert(0, {
             "generated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "week":      key,
             "weekStart": key,
-            "weekEnd":   date_to,
+            "weekEnd":   str(date_to),
             "rm":        sorted(rm,    key=lambda x: x["calls"], reverse=True),
             "fancy":     sorted(fancy, key=lambda x: x["calls"], reverse=True),
         })
 
-    # Save the full updated history
     with open(hist_path, "w") as f:
         json.dump(history, f, indent=2)
 
     print(f"\n{'='*50}")
-    print(f"✅ Backfill complete — {len(history)} weeks now in history.json")
+    print(f"Backfill complete -- {len(history)} weeks in history.json")
     print(f"{'='*50}\n")
 
 if __name__ == "__main__":
