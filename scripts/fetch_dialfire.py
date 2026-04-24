@@ -162,58 +162,127 @@ def extract_rows(data, label):
 # -- Fetch lead/email counts --------------------------------------------------
 def fetch_lead_counts(cid, token, ts, label):
     """
-    Fetch hs_lead_status counts per agent using multiple API approaches.
+    Fetch hs_lead_status counts per agent.
+    editsDef_v2 with group0=hs_lead_status, group1=user needs extended polling.
     Returns: {agent_name: {"seller": N, "rental": N, "email": N}}
     """
     result = {}
-    base_url = f"{API_BASE}/api/campaigns/{cid}"
+    url = f"{API_BASE}/api/campaigns/{cid}/reports/editsDef_v2/report/{LOCALE}"
 
-    # -- Approach 1: contactsDef with hs_lead_status as COLUMN (not group) ----
-    # contactsDef aggregates contact fields; hs_lead_status as column per user
-    for report_type in ["contactsDef", "contactsDef_v2"]:
-        url = f"{base_url}/reports/{report_type}/report/{LOCALE}"
-        # Try group0=user with hs_lead_status as column
-        for group_params in [
-            {"group0": "user", "column0": "hs_lead_status"},
-            {"group0": "hs_lead_status", "column0": "completed"},
-            {"group0": "user"},
-        ]:
-            params = {"access_token": token, "asTree": "true", "timespan": ts}
-            params.update(group_params)
-            tag = f"leads: {report_type} {group_params}"
-            data = fetch_json(url, params, label, tag, timeout=60, max_polls=15)
-            if data is None:
-                print(f"  [{label}] {tag} -> 403")
-                break  # token rejected, skip this report type
-            if isinstance(data, dict):
-                groups = data.get("groups", [])
-                col_defs = data.get("columnDefs", [])
-                print(f"  [{label}] {tag} -> dict groups={len(groups) if isinstance(groups,list) else type(groups).__name__} colDefs={col_defs}")
-                if isinstance(groups, list) and len(groups) > 0:
-                    first = groups[0]
-                    if isinstance(first, dict):
-                        print(f"  [{label}]   first_keys={list(first.keys())} val={first.get('value','')} cols={first.get('columns',[])} inner_grps={bool(first.get('groups'))}")
-            elif isinstance(data, list) and len(data) > 0:
-                sample = data[0]
-                print(f"  [{label}] {tag} -> list[{len(data)}] sample_keys={list(sample.keys())[:8] if isinstance(sample,dict) else type(sample).__name__}")
+    # Approach 1: group0=hs_lead_status, group1=user with EXTENDED polling
+    # Dialfire returns HTTP 202 and requires polling; hs_lead_status grouping is slower
+    params1 = {
+        "access_token": token,
+        "asTree": "true",
+        "timespan": ts,
+        "group0": "hs_lead_status",
+        "group1": "user",
+        "column0": "completed",
+    }
+    data1 = fetch_json(url, params1, label,
+                       "leads: hs_lead_status>user (extended poll)",
+                       timeout=30, max_polls=30)  # Up to 30*3s=90s polling
+    if data1 is None:
+        print(f"  [{label}] leads: 403")
+        return result
+    if isinstance(data1, dict):
+        groups1 = data1.get("groups", [])
+        print(f"  [{label}] leads: ap1 groups={len(groups1) if isinstance(groups1,list) else type(groups1).__name__}")
+        if isinstance(groups1, list) and len(groups1) > 0:
+            first = groups1[0]
+            if isinstance(first, dict):
+                inner_check = first.get("groups", first.get("children", None))
+                print(f"  [{label}] leads: ap1 first keys={list(first.keys())} inner={type(inner_check).__name__ if inner_check is not None else 'NONE'}")
+                if isinstance(inner_check, list):
+                    # We have nested data!
+                    for status_item in groups1:
+                        if not isinstance(status_item, dict):
+                            continue
+                        status_val = str(status_item.get("value", status_item.get("name", ""))).strip().upper()
+                        if status_val in SELLER_STATUSES:
+                            bucket = "seller"
+                        elif status_val in RENTAL_STATUSES:
+                            bucket = "rental"
+                        elif status_val in EMAIL_STATUSES:
+                            bucket = "email"
+                        else:
+                            continue
+                        inner = status_item.get("groups", status_item.get("children", []))
+                        for user_item in (inner if isinstance(inner, list) else []):
+                            if not isinstance(user_item, dict):
+                                continue
+                            agent_name = str(user_item.get("value", user_item.get("name", ""))).strip()
+                            if not agent_name or agent_name == "\u2014":
+                                continue
+                            cols = user_item.get("columns", [])
+                            count = 1
+                            if isinstance(cols, list) and cols:
+                                try:
+                                    count = int(round(float(cols[0])))
+                                except Exception:
+                                    pass
+                            if agent_name not in result:
+                                result[agent_name] = {"seller": 0, "rental": 0, "email": 0}
+                            result[agent_name][bucket] += count
+                    if result:
+                        print(f"  [{label}] leads: ap1 SUCCESS -> {result}")
+                        return result
+                    print(f"  [{label}] leads: ap1 nested groups but no matching status values")
+                else:
+                    # Flat response - log the status values we see
+                    print(f"  [{label}] leads: ap1 flat - status values: {[g.get('value','') for g in groups1 if isinstance(g,dict)]}")
 
-    # -- Approach 2: editsDef_v2 with group0=hs_lead_status (flat) -------------
-    # This returns counts per hs_lead_status value for the whole campaign.
-    # We can't break it down per user this way, but let's log what we get.
-    url_e = f"{base_url}/reports/editsDef_v2/report/{LOCALE}"
-    data_e = fetch_json(url_e,
-                        {"access_token": token, "asTree": "true", "timespan": ts,
-                         "group0": "hs_lead_status", "column0": "completed"},
-                        label, "leads: editsDef_v2 group0=hs_lead_status",
-                        timeout=60, max_polls=15)
-    if isinstance(data_e, dict):
-        groups_e = data_e.get("groups", [])
-        col_defs_e = data_e.get("columnDefs", [])
-        print(f"  [{label}] leads: editsDef_v2 hs_lead_status: {len(groups_e) if isinstance(groups_e,list) else type(groups_e).__name__} groups, colDefs={col_defs_e}")
-        if isinstance(groups_e, list):
-            for item in groups_e:
-                if isinstance(item, dict):
-                    print(f"  [{label}]   status_item: val={item.get('value','')} cols={item.get('columns',[])} has_inner={bool(item.get('groups'))}");
+    # Approach 2: group0=user, group1=hs_lead_status (extended poll)
+    params2 = {
+        "access_token": token,
+        "asTree": "true",
+        "timespan": ts,
+        "group0": "user",
+        "group1": "hs_lead_status",
+        "column0": "completed",
+    }
+    data2 = fetch_json(url, params2, label,
+                       "leads: user>hs_lead_status (extended poll)",
+                       timeout=30, max_polls=30)
+    if data2 is None:
+        print(f"  [{label}] leads: ap2 403")
+        return result
+    if isinstance(data2, dict):
+        groups2 = data2.get("groups", [])
+        print(f"  [{label}] leads: ap2 groups={len(groups2) if isinstance(groups2,list) else type(groups2).__name__}")
+        if isinstance(groups2, list) and len(groups2) > 0:
+            for agent_item in groups2:
+                if not isinstance(agent_item, dict):
+                    continue
+                agent_name = str(agent_item.get("value", agent_item.get("name", ""))).strip()
+                if not agent_name or agent_name == "\u2014":
+                    continue
+                inner = agent_item.get("groups", agent_item.get("children", []))
+                if not isinstance(inner, list) or not inner:
+                    continue
+                for status_item in inner:
+                    if not isinstance(status_item, dict):
+                        continue
+                    status_val = str(status_item.get("value", status_item.get("name", ""))).strip().upper()
+                    cols = status_item.get("columns", [])
+                    count = 1
+                    if isinstance(cols, list) and cols:
+                        try:
+                            count = int(round(float(cols[0])))
+                        except Exception:
+                            pass
+                    if agent_name not in result:
+                        result[agent_name] = {"seller": 0, "rental": 0, "email": 0}
+                    if status_val in SELLER_STATUSES:
+                        result[agent_name]["seller"] += count
+                    elif status_val in RENTAL_STATUSES:
+                        result[agent_name]["rental"] += count
+                    elif status_val in EMAIL_STATUSES:
+                        result[agent_name]["email"] += count
+            if result:
+                print(f"  [{label}] leads: ap2 SUCCESS -> {result}")
+                return result
+            print(f"  [{label}] leads: ap2 no nested status data")
 
     print(f"  [{label}] leads: all approaches failed - leads will be 0")
     return result
