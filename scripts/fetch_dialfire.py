@@ -163,14 +163,13 @@ def extract_rows(data, label):
 def fetch_lead_counts(cid, token, ts, label):
     """
     Fetch hs_lead_status counts per agent.
-    editsDef_v2 with group0=hs_lead_status, group1=user needs extended polling.
-    Returns: {agent_name: {"seller": N, "rental": N, "email": N}}
+    Tries multiple approaches to find where hs_lead_status data lives.
+    Returns: {agent_name: {"seller": N, "rental": N, "email": N}, ...}
     """
     result = {}
-    url = f"{API_BASE}/api/campaigns/{cid}/reports/editsDef_v2/report/{LOCALE}"
+    base_url = f"{API_BASE}/api/campaigns/{cid}/reports/editsDef_v2/report/{LOCALE}"
 
-    # Approach 1: group0=hs_lead_status, group1=user with EXTENDED polling
-    # Dialfire returns HTTP 202 and requires polling; hs_lead_status grouping is slower
+    # Approach 1: group0=hs_lead_status, group1=user + column1=hs_lead_status
     params1 = {
         "access_token": token,
         "asTree": "true",
@@ -178,61 +177,64 @@ def fetch_lead_counts(cid, token, ts, label):
         "group0": "hs_lead_status",
         "group1": "user",
         "column0": "completed",
+        "column1": "hs_lead_status",
     }
-    data1 = fetch_json(url, params1, label,
-                       "leads: hs_lead_status>user (extended poll)",
-                       timeout=30, max_polls=30)  # Up to 30*3s=90s polling
-    if data1 is None:
-        print(f"  [{label}] leads: 403")
-        return result
-    if isinstance(data1, dict):
+    data1 = fetch_json(base_url, params1, label,
+                       "leads ap1: hs_lead_status>user + col_hs",
+                       timeout=30, max_polls=30)
+    if data1 is not None and isinstance(data1, dict):
         groups1 = data1.get("groups", [])
-        print(f"  [{label}] leads: ap1 groups={len(groups1) if isinstance(groups1,list) else type(groups1).__name__}")
+        colDefs1 = data1.get("columnDefs", [])
+        print(f"  [{label}] leads ap1: groups={len(groups1) if isinstance(groups1,list) else type(groups1).__name__} colDefs={colDefs1}")
         if isinstance(groups1, list) and len(groups1) > 0:
             first = groups1[0]
             if isinstance(first, dict):
-                inner_check = first.get("groups", first.get("children", None))
-                print(f"  [{label}] leads: ap1 first keys={list(first.keys())} inner={type(inner_check).__name__ if inner_check is not None else 'NONE'}")
-                if isinstance(inner_check, list):
-                    # We have nested data!
-                    for status_item in groups1:
-                        if not isinstance(status_item, dict):
-                            continue
-                        status_val = str(status_item.get("value", status_item.get("name", ""))).strip().upper()
-                        if status_val in SELLER_STATUSES:
-                            bucket = "seller"
-                        elif status_val in RENTAL_STATUSES:
-                            bucket = "rental"
-                        elif status_val in EMAIL_STATUSES:
-                            bucket = "email"
-                        else:
-                            continue
-                        inner = status_item.get("groups", status_item.get("children", []))
-                        for user_item in (inner if isinstance(inner, list) else []):
-                            if not isinstance(user_item, dict):
-                                continue
-                            agent_name = str(user_item.get("value", user_item.get("name", ""))).strip()
-                            if not agent_name or agent_name == "\u2014":
-                                continue
-                            cols = user_item.get("columns", [])
-                            count = 1
-                            if isinstance(cols, list) and cols:
-                                try:
-                                    count = int(round(float(cols[0])))
-                                except Exception:
-                                    pass
-                            if agent_name not in result:
-                                result[agent_name] = {"seller": 0, "rental": 0, "email": 0}
-                            result[agent_name][bucket] += count
+                fv = first.get("value", "")
+                fc = first.get("columns", [])
+                inner = first.get("groups", first.get("children", None))
+                print(f"  [{label}] leads ap1 first: value={repr(str(fv))[:50]} cols={fc} inner={type(inner).__name__ if inner is not None else 'NONE'}")
+                if isinstance(inner, list) and len(inner) > 0:
+                    for grp in groups1:
+                        status_val = str(grp.get("value", "")).lower()
+                        bucket = None
+                        for s in SELLER_STATUSES:
+                            if s.lower() in status_val:
+                                bucket = "seller"
+                                break
+                        if not bucket:
+                            for s in RENTAL_STATUSES:
+                                if s.lower() in status_val:
+                                    bucket = "rental"
+                                    break
+                        if not bucket:
+                            for s in EMAIL_STATUSES:
+                                if s.lower() in status_val:
+                                    bucket = "email"
+                                    break
+                        if bucket:
+                            for u in inner:
+                                if isinstance(u, dict):
+                                    agent_name = str(u.get("value", ""))
+                                    ucols = u.get("columns", [])
+                                    count = 0
+                                    if isinstance(ucols, list) and len(ucols) > 0:
+                                        try:
+                                            count = int(ucols[0]) if ucols[0] not in (None, "", "-") else 0
+                                        except (ValueError, TypeError):
+                                            pass
+                                    if agent_name and agent_name != "-":
+                                        if agent_name not in result:
+                                            result[agent_name] = {"seller": 0, "rental": 0, "email": 0}
+                                        result[agent_name][bucket] += count
                     if result:
-                        print(f"  [{label}] leads: ap1 SUCCESS -> {result}")
+                        print(f"  [{label}] leads ap1 SUCCESS: {result}")
                         return result
-                    print(f"  [{label}] leads: ap1 nested groups but no matching status values")
                 else:
-                    # Flat response - log the status values we see
-                    print(f"  [{label}] leads: ap1 flat - status values: {[g.get('value','') for g in groups1 if isinstance(g,dict)]}")
+                    flat_vals = [g.get("value","") for g in groups1 if isinstance(g, dict)]
+                    flat_cols = [g.get("columns",[]) for g in groups1 if isinstance(g, dict)]
+                    print(f"  [{label}] leads ap1 flat: values={flat_vals[:6]} sample_cols={flat_cols[:3]}")
 
-    # Approach 2: group0=user, group1=hs_lead_status (extended poll)
+    # Approach 2: group0=user, group1=hs_lead_status
     params2 = {
         "access_token": token,
         "asTree": "true",
@@ -241,53 +243,81 @@ def fetch_lead_counts(cid, token, ts, label):
         "group1": "hs_lead_status",
         "column0": "completed",
     }
-    data2 = fetch_json(url, params2, label,
-                       "leads: user>hs_lead_status (extended poll)",
+    data2 = fetch_json(base_url, params2, label,
+                       "leads ap2: user>hs_lead_status",
                        timeout=30, max_polls=30)
-    if data2 is None:
-        print(f"  [{label}] leads: ap2 403")
-        return result
-    if isinstance(data2, dict):
+    if data2 is not None and isinstance(data2, dict):
         groups2 = data2.get("groups", [])
-        print(f"  [{label}] leads: ap2 groups={len(groups2) if isinstance(groups2,list) else type(groups2).__name__}")
+        print(f"  [{label}] leads ap2: groups={len(groups2) if isinstance(groups2,list) else type(groups2).__name__}")
         if isinstance(groups2, list) and len(groups2) > 0:
-            for agent_item in groups2:
-                if not isinstance(agent_item, dict):
-                    continue
-                agent_name = str(agent_item.get("value", agent_item.get("name", ""))).strip()
-                if not agent_name or agent_name == "\u2014":
-                    continue
-                inner = agent_item.get("groups", agent_item.get("children", []))
-                if not isinstance(inner, list) or not inner:
-                    continue
-                for status_item in inner:
-                    if not isinstance(status_item, dict):
-                        continue
-                    status_val = str(status_item.get("value", status_item.get("name", ""))).strip().upper()
-                    cols = status_item.get("columns", [])
-                    count = 1
-                    if isinstance(cols, list) and cols:
-                        try:
-                            count = int(round(float(cols[0])))
-                        except Exception:
-                            pass
-                    if agent_name not in result:
-                        result[agent_name] = {"seller": 0, "rental": 0, "email": 0}
-                    if status_val in SELLER_STATUSES:
-                        result[agent_name]["seller"] += count
-                    elif status_val in RENTAL_STATUSES:
-                        result[agent_name]["rental"] += count
-                    elif status_val in EMAIL_STATUSES:
-                        result[agent_name]["email"] += count
-            if result:
-                print(f"  [{label}] leads: ap2 SUCCESS -> {result}")
-                return result
-            print(f"  [{label}] leads: ap2 no nested status data")
+            first2 = groups2[0]
+            if isinstance(first2, dict):
+                inner2 = first2.get("groups", first2.get("children", None))
+                cols2 = first2.get("columns", [])
+                print(f"  [{label}] leads ap2 first: value={repr(str(first2.get('value',''))[:30])} cols={cols2} inner={type(inner2).__name__ if inner2 is not None else 'NONE'}")
+                if isinstance(inner2, list) and len(inner2) > 0:
+                    sample = [{"v": str(x.get("value",""))[:20], "c": x.get("columns",[])} for x in inner2[:3] if isinstance(x,dict)]
+                    print(f"  [{label}] leads ap2 inner sample: {sample}")
+                    for ugrp in groups2:
+                        agent_name = str(ugrp.get("value", ""))
+                        inner_grps = ugrp.get("groups", ugrp.get("children", []))
+                        if not isinstance(inner_grps, list):
+                            continue
+                        for sgrp in inner_grps:
+                            if not isinstance(sgrp, dict):
+                                continue
+                            status_val = str(sgrp.get("value", "")).lower()
+                            bucket = None
+                            for s in SELLER_STATUSES:
+                                if s.lower() in status_val:
+                                    bucket = "seller"
+                                    break
+                            if not bucket:
+                                for s in RENTAL_STATUSES:
+                                    if s.lower() in status_val:
+                                        bucket = "rental"
+                                        break
+                            if not bucket:
+                                for s in EMAIL_STATUSES:
+                                    if s.lower() in status_val:
+                                        bucket = "email"
+                                        break
+                            if bucket:
+                                scols = sgrp.get("columns", [])
+                                count = 0
+                                if isinstance(scols, list) and len(scols) > 0:
+                                    try:
+                                        count = int(scols[0]) if scols[0] not in (None, "", "-") else 0
+                                    except (ValueError, TypeError):
+                                        pass
+                                if agent_name and agent_name != "-":
+                                    if agent_name not in result:
+                                        result[agent_name] = {"seller": 0, "rental": 0, "email": 0}
+                                    result[agent_name][bucket] += count
+                    if result:
+                        print(f"  [{label}] leads ap2 SUCCESS: {result}")
+                        return result
+                    print(f"  [{label}] leads ap2: no matching lead statuses found")
+
+    # Approach 3: No grouping, just column0=hs_lead_status
+    params3 = {
+        "access_token": token,
+        "timespan": ts,
+        "column0": "hs_lead_status",
+    }
+    data3 = fetch_json(base_url, params3, label,
+                       "leads ap3: no-group col=hs_lead_status",
+                       timeout=30, max_polls=30)
+    if data3 is not None and isinstance(data3, dict):
+        colDefs3 = data3.get("columnDefs", [])
+        groups3 = data3.get("groups", [])
+        print(f"  [{label}] leads ap3: colDefs={colDefs3} groups={len(groups3) if isinstance(groups3,list) else type(groups3).__name__}")
+        if isinstance(groups3, list) and len(groups3) > 0:
+            sample3 = [{"v": str(g.get("value",""))[:20], "c": g.get("columns",[])} for g in groups3[:3] if isinstance(g,dict)]
+            print(f"  [{label}] leads ap3 sample: {sample3}")
 
     print(f"  [{label}] leads: all approaches failed - leads will be 0")
     return result
-
-# -- Parse one row into agent dict -------------------------------------------
 def parse_row(row):
     if not isinstance(row, dict):
         return None
