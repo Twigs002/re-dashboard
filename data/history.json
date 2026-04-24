@@ -1,58 +1,82 @@
 [
   {
-    "generated": "2026-04-24T08:50:34.420089+00:00",
+    "generated": "2026-04-24T12:25:15.346393+00:00",
     "week": "2026-04-17",
     "weekStart": "2026-04-17",
     "weekEnd": "2026-04-24",
     "rm": [
       {
         "name": "Gio",
-        "calls": 62,
-        "success": 20,
+        "calls": 183,
+        "success": 42,
         "seller": 0,
         "rental": 0,
         "email": 0,
-        "cph": 49.6,
-        "successRate": 32.3,
-        "workTime": 1.25,
+        "cph": 50.8,
+        "successRate": 23.0,
+        "workTime": 3.6,
         "meetsTarget": true
       },
       {
         "name": "SadiqaCarelse",
-        "calls": 44,
-        "success": 10,
+        "calls": 114,
+        "success": 18,
         "seller": 0,
         "rental": 0,
         "email": 0,
-        "cph": 47.3,
-        "successRate": 22.7,
-        "workTime": 0.93,
-        "meetsTarget": true
+        "cph": 45.2,
+        "successRate": 15.8,
+        "workTime": 2.52,
+        "meetsTarget": false
       },
       {
         "name": "NaomiCiza",
-        "calls": 28,
-        "success": 10,
+        "calls": 77,
+        "success": 19,
         "seller": 0,
         "rental": 0,
         "email": 0,
-        "cph": 35.9,
-        "successRate": 35.7,
-        "workTime": 0.78,
+        "cph": 36.0,
+        "successRate": 24.7,
+        "workTime": 2.14,
+        "meetsTarget": false
+      },
+      {
+        "name": "BrandonNtini",
+        "calls": 43,
+        "success": 14,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 27.7,
+        "successRate": 32.6,
+        "workTime": 1.55,
         "meetsTarget": false
       }
     ],
     "fancy": [
       {
         "name": "CraigCarroll",
-        "calls": 51,
+        "calls": 64,
+        "success": 7,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 39.5,
+        "successRate": 10.9,
+        "workTime": 1.62,
+        "meetsTarget": false
+      },
+      {
+        "name": "NeelamJameel",
+        "calls": 9,
         "success": 5,
         "seller": 0,
         "rental": 0,
         "email": 0,
-        "cph": 40.5,
-        "successRate": 9.8,
-        "workTime": 1.26,
+        "cph": 39.1,
+        "successRate": 55.6,
+        "workTime": 0.23,
         "meetsTarget": false
       }
     ]
