@@ -1,20 +1,57 @@
 {
-  "generated": "2026-04-24T07:04:35.048292+00:00",
+  "generated": "2026-04-24T08:33:47.951259+00:00",
   "week": "2026-04-17",
   "periodStart": "2026-04-17",
   "periodEnd": "2026-04-24",
-  "rm": [],
-  "fancy": [
+  "rm": [
     {
-      "name": "CraigCarroll",
-      "calls": 250,
-      "success": 36,
+      "name": "Gio",
+      "calls": 62,
+      "success": 20,
       "seller": 0,
       "rental": 0,
       "email": 0,
-      "cph": 37.9,
-      "successRate": 0.1,
-      "workTime": 6.6,
+      "cph": 49.6,
+      "successRate": 32.3,
+      "workTime": 1.25,
+      "meetsTarget": true
+    },
+    {
+      "name": "SadiqaCarelse",
+      "calls": 44,
+      "success": 10,
+      "seller": 0,
+      "rental": 0,
+      "email": 0,
+      "cph": 47.3,
+      "successRate": 22.7,
+      "workTime": 0.93,
+      "meetsTarget": true
+    },
+    {
+      "name": "NaomiCiza",
+      "calls": 28,
+      "success": 10,
+      "seller": 0,
+      "rental": 0,
+      "email": 0,
+      "cph": 35.9,
+      "successRate": 35.7,
+      "workTime": 0.78,
+      "meetsTarget": false
+    }
+  ],
+  "fancy": [
+    {
+      "name": "CraigCarroll",
+      "calls": 51,
+      "success": 5,
+      "seller": 0,
+      "rental": 0,
+      "email": 0,
+      "cph": 40.5,
+      "successRate": 9.8,
+      "workTime": 1.26,
       "meetsTarget": false
     }
   ]
