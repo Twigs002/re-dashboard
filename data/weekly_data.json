@@ -1,19 +1,19 @@
 {
-  "generated": "2026-04-24T12:32:19.673556+00:00",
+  "generated": "2026-04-24T12:40:05.673019+00:00",
   "week": "2026-04-17",
   "periodStart": "2026-04-17",
   "periodEnd": "2026-04-24",
   "rm": [
     {
       "name": "Gio",
-      "calls": 187,
-      "success": 43,
+      "calls": 190,
+      "success": 44,
       "seller": 0,
       "rental": 0,
       "email": 0,
-      "cph": 50.8,
-      "successRate": 23.0,
-      "workTime": 3.68,
+      "cph": 50.4,
+      "successRate": 23.2,
+      "workTime": 3.77,
       "meetsTarget": true
     },
     {
@@ -42,14 +42,14 @@
     },
     {
       "name": "BrandonNtini",
-      "calls": 46,
-      "success": 16,
+      "calls": 50,
+      "success": 19,
       "seller": 0,
       "rental": 0,
       "email": 0,
-      "cph": 28.2,
-      "successRate": 34.8,
-      "workTime": 1.63,
+      "cph": 29.1,
+      "successRate": 38.0,
+      "workTime": 1.72,
       "meetsTarget": false
     }
   ],
@@ -68,15 +68,15 @@
     },
     {
       "name": "NeelamJameel",
-      "calls": 14,
+      "calls": 20,
       "success": 5,
       "seller": 0,
       "rental": 0,
       "email": 0,
-      "cph": 41.2,
-      "successRate": 35.7,
-      "workTime": 0.34,
-      "meetsTarget": false
+      "cph": 46.5,
+      "successRate": 25.0,
+      "workTime": 0.43,
+      "meetsTarget": true
     }
   ]
 }
