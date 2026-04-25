@@ -1,5 +1,718 @@
 [
   {
+    "generated": "2026-04-25T20:11:36Z",
+    "week": "2026-04-06",
+    "weekStart": "2026-04-06",
+    "weekEnd": "2026-04-10",
+    "rm": [],
+    "fancy": []
+  },
+  {
+    "generated": "2026-04-25T20:10:35Z",
+    "week": "2026-03-30",
+    "weekStart": "2026-03-30",
+    "weekEnd": "2026-04-05",
+    "rm": [],
+    "fancy": []
+  },
+  {
+    "generated": "2026-04-25T20:10:03Z",
+    "week": "2026-03-23",
+    "weekStart": "2026-03-23",
+    "weekEnd": "2026-03-29",
+    "rm": [
+      {
+        "name": "BrandonNtini",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "DeclanT",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "Gio",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "Kay-LeeOrphan",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "NaomiCiza",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "SadiqaCarelse",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      }
+    ],
+    "fancy": [
+      {
+        "name": "CraigCarroll",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "HlomphoMonkhe",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "TamzinJacobs",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "Test",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "ZukhanyeSigwela",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "\u2014",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      }
+    ]
+  },
+  {
+    "generated": "2026-04-25T20:10:00Z",
+    "week": "2026-03-16",
+    "weekStart": "2026-03-16",
+    "weekEnd": "2026-03-22",
+    "rm": [],
+    "fancy": [
+      {
+        "name": "CraigCarroll",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "\u2014",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      }
+    ]
+  },
+  {
+    "generated": "2026-04-25T20:09:28Z",
+    "week": "2026-03-09",
+    "weekStart": "2026-03-09",
+    "weekEnd": "2026-03-15",
+    "rm": [
+      {
+        "name": "DeclanT",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "Gio",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "Kay-LeeOrphan",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "NaomiCiza",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "SadiqaCarelse",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      }
+    ],
+    "fancy": [
+      {
+        "name": "AngeliqueBotes",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "BasilTambwe",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "CraigCarroll",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "HlomphoMonkhe",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "StaddyMalonga",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "Test",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "TiffanyHarvey",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "ZukhanyeSigwela",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "\u2014",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      }
+    ]
+  },
+  {
+    "generated": "2026-04-25T20:09:26Z",
+    "week": "2026-03-02",
+    "weekStart": "2026-03-02",
+    "weekEnd": "2026-03-08",
+    "rm": [
+      {
+        "name": "CameronPaulse",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "DeclanT",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "Gio",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "Kay-LeeOrphan",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "NaomiCiza",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "SadiqaCarelse",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      }
+    ],
+    "fancy": [
+      {
+        "name": "BasetsanaMabusela",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "BasilTambwe",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "CraigCarroll",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "HlomphoMonkhe",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "Test",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "TiffanyHarvey",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "ZukhanyeSigwela",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "\u2014",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      }
+    ]
+  },
+  {
+    "generated": "2026-04-25T20:09:24Z",
+    "week": "2026-02-23",
+    "weekStart": "2026-02-23",
+    "weekEnd": "2026-03-01",
+    "rm": [
+      {
+        "name": "CameronPaulse",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "DeclanT",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "Kay-LeeOrphan",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "NaomiCiza",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "SadiqaCarelse",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      }
+    ],
+    "fancy": [
+      {
+        "name": "BasetsanaMabusela",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "CraigCarroll",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "JoshAdonis",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "Test",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "TiffanyHarvey",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "ZukhanyeSigwela",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      },
+      {
+        "name": "\u2014",
+        "calls": 0,
+        "success": 0,
+        "seller": 0,
+        "rental": 0,
+        "email": 0,
+        "cph": 0.0,
+        "successRate": 0.0,
+        "workTime": 0.0,
+        "meetsTarget": false
+      }
+    ]
+  },
+  {
     "generated": "2026-04-25T15:42:30.987100+00:00",
     "week": "2026-04-20",
     "weekStart": "2026-04-20",
@@ -198,61 +911,5 @@
         "meetsTarget": true
       }
     ]
-  },
-  {
-    "generated": "2026-04-23T06:28:56Z",
-    "week": "2026-04-06",
-    "weekStart": "2026-04-06",
-    "weekEnd": "2026-04-10",
-    "rm": [],
-    "fancy": []
-  },
-  {
-    "generated": "2026-04-23T06:27:55Z",
-    "week": "2026-03-30",
-    "weekStart": "2026-03-30",
-    "weekEnd": "2026-04-03",
-    "rm": [],
-    "fancy": []
-  },
-  {
-    "generated": "2026-04-23T06:26:54Z",
-    "week": "2026-03-23",
-    "weekStart": "2026-03-23",
-    "weekEnd": "2026-03-27",
-    "rm": [],
-    "fancy": []
-  },
-  {
-    "generated": "2026-04-23T06:25:53Z",
-    "week": "2026-03-16",
-    "weekStart": "2026-03-16",
-    "weekEnd": "2026-03-20",
-    "rm": [],
-    "fancy": []
-  },
-  {
-    "generated": "2026-04-23T06:24:52Z",
-    "week": "2026-03-09",
-    "weekStart": "2026-03-09",
-    "weekEnd": "2026-03-13",
-    "rm": [],
-    "fancy": []
-  },
-  {
-    "generated": "2026-04-23T06:23:51Z",
-    "week": "2026-03-02",
-    "weekStart": "2026-03-02",
-    "weekEnd": "2026-03-06",
-    "rm": [],
-    "fancy": []
-  },
-  {
-    "generated": "2026-04-23T06:22:50Z",
-    "week": "2026-02-23",
-    "weekStart": "2026-02-23",
-    "weekEnd": "2026-02-27",
-    "rm": [],
-    "fancy": []
   }
 ]
