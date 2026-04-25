@@ -249,6 +249,55 @@ def fetch_lead_counts(cid, token, ts, label):
                         print(f"  [{label}] contacts: no matching statuses. Sample leads={sample_leads} agents={sample_agents}")
             elif isinstance(contacts, dict):
                 print(f"  [{label}] contacts returned dict with keys: {list(contacts.keys())[:10]}")
+                # contacts/filter returns {cursor, hits, _count_, _checked_} - extract hits list
+                hits = contacts.get("hits", [])
+                if isinstance(hits, list) and len(hits) > 0:
+                    contacts = hits  # reuse list-processing logic below
+                    sample = contacts[0] if isinstance(contacts[0], dict) else {}
+                    sample_keys = list(sample.keys())[:20]
+                    print(f"  [{label}] contacts hits sample keys: {sample_keys}")
+                    lead_field = None
+                    agent_field = None
+                    for fld in ["Lead_Status", "hs_lead_status", "$Lead_Status", "$hs_lead_status"]:
+                        if fld in sample:
+                            lead_field = fld
+                            break
+                    for fld in ["assigned_user", "$assigned_user", "last_edit_user", "$last_edit_user"]:
+                        if fld in sample:
+                            agent_field = fld
+                            break
+                    print(f"  [{label}] hits: lead_field={lead_field} agent_field={agent_field}")
+                    if lead_field and agent_field:
+                        for c in contacts:
+                            if not isinstance(c, dict):
+                                continue
+                            status_val = str(c.get(lead_field, "") or "").strip().upper()
+                            agent_name = str(c.get(agent_field, "") or "").strip()
+                            if not agent_name:
+                                continue
+                            bucket = None
+                            if status_val in {s.upper() for s in SELLER_STATUSES}:
+                                bucket = "seller"
+                            elif status_val in {s.upper() for s in RENTAL_STATUSES}:
+                                bucket = "rental"
+                            elif status_val in {s.upper() for s in EMAIL_STATUSES}:
+                                bucket = "email"
+                            if bucket:
+                                if agent_name not in result:
+                                    result[agent_name] = {"seller": 0, "rental": 0, "email": 0}
+                                result[agent_name][bucket] += 1
+                        if result:
+                            print(f"  [{label}] contacts hits leads SUCCESS: {result}")
+                            return result
+                        else:
+                            sample_leads = [str(c.get(lead_field, ""))[:30] for c in contacts[:5] if isinstance(c, dict)]
+                            sample_agents = [str(c.get(agent_field, ""))[:20] for c in contacts[:5] if isinstance(c, dict)]
+                            print(f"  [{label}] contacts hits: no matching statuses. Sample leads={sample_leads} agents={sample_agents}")
+                    else:
+                        all_keys = list(contacts[0].keys()) if contacts else []
+                        print(f"  [{label}] contacts hits: cannot find lead/agent fields. All keys={all_keys}")
+                else:
+                    print(f"  [{label}] contacts hits: empty or not a list. hits type={type(hits).__name__} len={len(hits) if isinstance(hits,list) else 'N/A'}")
         elif r_cf.status_code == 401 or r_cf.status_code == 403:
             print(f"  [{label}] contacts/filter: auth failed ({r_cf.status_code}), trying access_token...")
             # Try with access_token instead of Bearer
