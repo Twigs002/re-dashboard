@@ -371,6 +371,66 @@ def fetch_lead_counts(cid, token, ts, label):
     return result
 
 
+def parse_row(row):
+    if not isinstance(row, dict):
+        return None
+    name = str(row.get("name", "")).strip()
+    if not name or name in ("", "\u2014", "\u2013"):
+        return None
+
+    def _int(v):
+        try:
+            return int(round(float(v or 0)))
+        except Exception:
+            return 0
+
+    def _float(v):
+        try:
+            return round(float(v or 0), 2)
+        except Exception:
+            return 0.0
+
+    calls   = _int(row.get("completed") or row.get("calls") or 0)
+    success = _int(row.get("success", 0))
+    wt_raw  = row.get("workTime") or row.get("work_time") or row.get("workHours") or 0
+    work_h  = _float(wt_raw)
+    if work_h > 1000:
+        work_h = round(work_h / 3600, 2)
+
+    sr_raw = row.get("successRate") or row.get("success_rate") or 0
+    try:
+        sr_float = float(sr_raw)
+        if 0.0 <= sr_float <= 1.0:
+            sr = round(sr_float * 100, 1)
+        else:
+            sr = round(sr_float, 1)
+    except Exception:
+        sr = round(success / calls * 100, 1) if calls else 0.0
+
+    seller = _int(row.get("seller", 0))
+    rental = _int(row.get("rental", 0))
+    email  = _int(row.get("email", 0))
+
+    cph_val = round(calls / work_h, 1) if work_h > 0 else 0.0
+    is_rm   = name in RM_NAMES
+    bench   = BENCHMARKS["rm_success_rate"] if is_rm else BENCHMARKS["fc_success_rate"]
+    meets   = cph_val >= BENCHMARKS["cph"] and sr >= bench
+
+    return {
+        "name":        name,
+        "calls":       calls,
+        "success":     success,
+        "seller":      seller,
+        "rental":      rental,
+        "email":       email,
+        "cph":         cph_val,
+        "successRate": sr,
+        "workTime":    work_h,
+        "meetsTarget": meets,
+    }
+
+
+
 def fetch_campaign(cid, token, index, total, period_start, period_end, ts):
     label = f"{index + 1}/{total} {cid}"
     base = f"{API_BASE}/api/campaigns/{cid}"
