@@ -27,6 +27,8 @@ jobs:
         env:
           CAMPAIGN_CLIENTHUB_ID: ${{ secrets.CAMPAIGN_CLIENTHUB_ID }}
           CAMPAIGN_CLIENTHUB_TOKEN: ${{ secrets.CAMPAIGN_CLIENTHUB_TOKEN }}
+          CAMPAIGN_CLIENTHUB_NEW_ID: ${{ secrets.CAMPAIGN_CLIENTHUB_NEW_ID }}
+          CAMPAIGN_CLIENTHUB_NEW_TOKEN: ${{ secrets.CAMPAIGN_CLIENTHUB_NEW_TOKEN }}
           CAMPAIGN_1_ID: ${{ secrets.CAMPAIGN_1_ID }}
           CAMPAIGN_1_TOKEN: ${{ secrets.CAMPAIGN_1_TOKEN }}
           CAMPAIGN_2_ID: ${{ secrets.CAMPAIGN_2_ID }}
