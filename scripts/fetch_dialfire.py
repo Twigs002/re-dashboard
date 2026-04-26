@@ -178,6 +178,28 @@ def extract_rows(data, label):
     return rows
 
 
+# -- Fetch actual campaign name from Dialfire API -----------------------------
+def fetch_campaign_name(cid, token):
+    """
+    Fetch the human-readable campaign name for a given campaign ID.
+    Tries GET /api/campaigns/{cid} with access_token param.
+    Returns the name string, or cid as fallback.
+    """
+    url = f"{API_BASE}/api/campaigns/{cid}"
+    try:
+        r = requests.get(url, params={"access_token": token}, timeout=10)
+        if r.status_code == 200:
+            data = r.json()
+            name = (data.get("name") or data.get("title") or data.get("label") or "").strip()
+            if name:
+                print(f"  [campaign {cid}] name: {name!r}")
+                return name
+        print(f"  [campaign {cid}] name fetch HTTP {r.status_code}, using id as fallback")
+    except Exception as e:
+        print(f"  [campaign {cid}] name fetch error: {e}")
+    return cid
+
+
 # -- Fetch lead/email counts --------------------------------------------------
 def fetch_lead_counts(cid, token, ts, label):
     """
@@ -390,7 +412,7 @@ def parse_row(row):
 
 
 
-def fetch_campaign(cid, token, index, total, period_start, period_end, ts, campaign_label=""):
+def fetch_campaign(cid, token, index, total, period_start, period_end, ts, campaign_label="", campaign_name=""):
     label = f"{index + 1}/{total} {cid}"
     base = f"{API_BASE}/api/campaigns/{cid}"
 
@@ -433,6 +455,7 @@ def fetch_campaign(cid, token, index, total, period_start, period_end, ts, campa
                             row["email"]  = lead_counts[name]["email"]
                     for row in rows:
                         row["campaign_label"] = campaign_label
+                        row["campaign_name"]  = campaign_name or campaign_label
                     return rows
         else:
             print(f"  [{label}] ts={cur_ts} got non-dict: {type(data).__name__}")
@@ -458,8 +481,9 @@ def main():
     ch_id  = os.environ.get("CAMPAIGN_CLIENTHUB_ID", "").strip()
     ch_tok = os.environ.get("CAMPAIGN_CLIENTHUB_TOKEN", "").strip()
     if ch_id and ch_tok:
-        campaigns.append({"id": ch_id, "token": ch_tok, "label": "CLIENTHUB"})
-        print(f"  CLIENTHUB campaign: {ch_id}")
+        ch_name = fetch_campaign_name(ch_id, ch_tok)
+        campaigns.append({"id": ch_id, "token": ch_tok, "label": "CLIENTHUB", "name": ch_name})
+        print(f"  CLIENTHUB campaign: {ch_id} ({ch_name})")
     elif ch_id:
         print(f"  CLIENTHUB campaign: {ch_id} (NO TOKEN)")
 
@@ -470,8 +494,9 @@ def main():
         if not cid:
             break
         if ctok:
-            campaigns.append({"id": cid, "token": ctok, "label": f"CAMP{i}"})
-            print(f"  Campaign {i}: {cid}")
+            cname = fetch_campaign_name(cid, ctok)
+            campaigns.append({"id": cid, "token": ctok, "label": f"CAMP{i}", "name": cname})
+            print(f"  Campaign {i}: {cid} ({cname})")
         else:
             print(f"  Campaign {i}: {cid} (NO TOKEN)")
         i += 1
@@ -480,8 +505,9 @@ def main():
     leg_tok = os.environ.get("DIALFIRE_CAMPAIGN_TOKEN", "").strip()
     if leg_id and leg_tok:
         if not any(c["id"] == leg_id for c in campaigns):
-            campaigns.append({"id": leg_id, "token": leg_tok, "label": "LEGACY"})
-            print(f"  Legacy campaign: {leg_id}")
+            leg_name = fetch_campaign_name(leg_id, leg_tok)
+            campaigns.append({"id": leg_id, "token": leg_tok, "label": "LEGACY", "name": leg_name})
+            print(f"  Legacy campaign: {leg_id} ({leg_name})")
 
     if not campaigns:
         print("No campaigns configured.")
@@ -493,18 +519,27 @@ def main():
     all_rows = []
     for idx, c in enumerate(campaigns):
         rows = fetch_campaign(c["id"], c["token"], idx, len(campaigns),
-                              period_start, period_end, ts, campaign_label=c.get("label", ""))
+                              period_start, period_end, ts,
+                              campaign_label=c.get("label", ""),
+                              campaign_name=c.get("name", ""))
         all_rows.extend(rows)
 
     print()
     print(f"Raw rows collected: {len(all_rows)}")
 
     merged = {}
+    agent_campaigns = {}  # name -> list of campaign names this agent appeared in
     for row in all_rows:
         agent = parse_row(row)
         if agent is None:
             continue
         name = agent["name"]
+        cname = row.get("campaign_name", row.get("campaign_label", ""))
+        # Track which campaigns this agent appeared in
+        if name not in agent_campaigns:
+            agent_campaigns[name] = []
+        if cname and cname not in agent_campaigns[name]:
+            agent_campaigns[name].append(cname)
         # Mark as RM if they appear in the CLIENTHUB campaign
         if row.get("campaign_label", "") == "CLIENTHUB":
             agent["is_rm"] = True
@@ -522,6 +557,10 @@ def main():
         else:
             merged[name] = agent
 
+    # Attach campaign list to each agent
+    for name, agent in merged.items():
+        agent["campaigns"] = agent_campaigns.get(name, [])
+
     agents = list(merged.values())
     for a in agents:
         a["cph"] = round(a["calls"] / a["workTime"], 1) if a["workTime"] > 0 else 0.0
@@ -536,10 +575,10 @@ def main():
     print(f"RM: {len(rm_agents)} | Fancy: {len(fancy_agents)}")
     for a in rm_agents:
         print(f"  RM   {a['name']:<22} calls={a['calls']:>4} success={a['success']:>3} "
-              f"seller={a['seller']:>3} rental={a['rental']:>3} email={a['email']:>3} cph={a['cph']:>5}")
+              f"seller={a['seller']:>3} rental={a['rental']:>3} email={a['email']:>3} cph={a['cph']:>5} campaigns={a.get('campaigns')}")
     for a in fancy_agents:
         print(f"  FANCY {a['name']:<22} calls={a['calls']:>4} success={a['success']:>3} "
-              f"seller={a['seller']:>3} rental={a['rental']:>3} email={a['email']:>3} cph={a['cph']:>5}")
+              f"seller={a['seller']:>3} rental={a['rental']:>3} email={a['email']:>3} cph={a['cph']:>5} campaigns={a.get('campaigns')}")
 
     week_str = str(period_start)
     output = {
