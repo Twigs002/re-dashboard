@@ -632,7 +632,7 @@ function buildTable(data, bench, tbId, showDiv){
     const dc=showDiv?`<td style="color:var(--muted);font-size:11px;white-space:normal;max-width:160px">${d.div||''}</td>`:'';
     return `<tr style="background:${bg[st]}">
       <td style="color:var(--muted);font-size:10px">${i+1}</td>
-      <td class="ag">${d.name}${d.campaigns&&d.campaigns.length?'<br><span style="font-size:9px;font-weight:400;color:var(--muted);letter-spacing:.3px">${d.campaigns.join(", ")}</span>':''}</td>${dc}
+      <td class="ag">${d.name}${d.campaigns&&d.campaigns.length?('<br><span style="font-size:9px;font-weight:400;color:var(--muted);letter-spacing:.3px">'+d.campaigns.join(', ')+'</span>'):''}</td>${dc}
       <td><strong>${d.calls.toLocaleString()}</strong></td>
       <td>${f2(d.workTime)}h</td>
       <td><span class="mx ${mc(c,bench.cph)}">${f1(c)}/hr</span></td>
@@ -815,7 +815,7 @@ function renderExec(){
           const bench=d._grp==='RM'?B.rm:B.fancy;
           return `<tr>
             <td style="font-size:18px">${['🥇','🥈','🥉'][i]}</td>
-            <td class="ag">${d.name}${d.campaigns&&d.campaigns.length?'<br><span style="font-size:9px;font-weight:400;color:var(--muted);letter-spacing:.3px">${d.campaigns.join(", ")}</span>':''}</td>
+            <td class="ag">${d.name}${d.campaigns&&d.campaigns.length?('<br><span style="font-size:9px;font-weight:400;color:var(--muted);letter-spacing:.3px">'+d.campaigns.join(', ')+'</span>'):''}</td>
             <td><span class="mx ${d._grp==='RM'?'neu':'pur'}">${d._grp}</span></td>
             <td><strong>${d.calls.toLocaleString()}</strong></td>
             <td><span class="mx ${mc(sr(d),bench.sr)}">${pct(sr(d))}</span></td>
@@ -1073,7 +1073,7 @@ function renderReport(entries, from, to){
       <th>Rental</th><th>Seller</th><th>Email</th></tr></thead>
     <tbody>${agents.map((d,i)=>`<tr>
       <td style="color:var(--muted);font-size:10px">${i+1}</td>
-      <td class="ag">${d.name}${d.campaigns&&d.campaigns.length?'<br><span style="font-size:9px;font-weight:400;color:var(--muted);letter-spacing:.3px">${d.campaigns.join(", ")}</span>':''}</td>
+      <td class="ag">${d.name}${d.campaigns&&d.campaigns.length?('<br><span style="font-size:9px;font-weight:400;color:var(--muted);letter-spacing:.3px">'+d.campaigns.join(', ')+'</span>'):''}</td>
       <td><span class="mx ${d._grp==='RM'?'neu':'pur'}">${d._grp}</span></td>
       <td style="color:var(--muted)">${d._weeks}</td>
       <td><strong>${d.calls.toLocaleString()}</strong></td>
@@ -1089,7 +1089,7 @@ function renderReport(entries, from, to){
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
       ${agents.map(d=>`<div class="sc" style="border-left-color:${d._grp==='RM'?'var(--brand)':'#5B3FA6'}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
-          <div><div class="sc-val" style="font-size:15px">${d.name}${d.campaigns&&d.campaigns.length?'<div style="font-size:9px;font-weight:400;color:var(--muted);margin-top:2px">${d.campaigns.join(", ")}</div>':''}</div>
+          <div><div class="sc-val" style="font-size:15px">${d.name}${d.campaigns&&d.campaigns.length?('<div style="font-size:9px;font-weight:400;color:var(--muted);margin-top:2px">'+d.campaigns.join(', ')+'</div>'):''}</div>
           <span class="mx ${d._grp==='RM'?'neu':'pur'}" style="margin-top:4px;display:inline-block">${d._grp}</span></div>
           <span class="mx ${mc(sr(d),d._grp==='RM'?.17:.20)}">${pct(sr(d))}</span>
         </div>
