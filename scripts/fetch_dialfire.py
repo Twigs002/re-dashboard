@@ -487,6 +487,15 @@ def main():
     elif ch_id:
         print(f"  CLIENTHUB campaign: {ch_id} (NO TOKEN)")
 
+    ch_new_id  = os.environ.get("CAMPAIGN_CLIENTHUB_NEW_ID", "").strip()
+    ch_new_tok = os.environ.get("CAMPAIGN_CLIENTHUB_NEW_TOKEN", "").strip()
+    if ch_new_id and ch_new_tok:
+        ch_new_name = fetch_campaign_name(ch_new_id, ch_new_tok)
+        campaigns.append({"id": ch_new_id, "token": ch_new_tok, "label": "CLIENTHUB", "name": ch_new_name})
+        print(f"  CLIENTHUB_NEW campaign: {ch_new_id} ({ch_new_name})")
+    elif ch_new_id:
+        print(f"  CLIENTHUB_NEW campaign: {ch_new_id} (NO TOKEN)")
+
     i = 1
     while True:
         cid  = os.environ.get(f"CAMPAIGN_{i}_ID", "").strip()
