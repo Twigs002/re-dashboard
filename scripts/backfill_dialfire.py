@@ -30,6 +30,10 @@ RM_NAMES = {
 
 BENCHMARKS = {"cph": 45, "daily_calls": 315, "rm_success_rate": 17, "fc_success_rate": 20}
 
+SELLER_STATUSES = {"LEAD"}
+RENTAL_STATUSES = {"RENTAL_LEAD"}
+EMAIL_STATUSES  = {"GOT_EMAIL"}
+
 # Load campaigns (individual vars first, then DIALFIRE_CAMPAIGNS JSON)
 CAMPAIGNS = []
 ch_id  = os.environ.get("CAMPAIGN_CLIENTHUB_ID", "").strip()
@@ -122,6 +126,44 @@ def fetch_json(url, params, label, tag, max_poll=10):
         return {}
 
 
+def fetch_lead_counts_bf(cid, token, ts, label):
+    """Fetch lead counts per agent using editsDef_v2 group0=Lead_Status group1=user."""
+    result = {}
+    base_url = f"{API_BASE}/api/campaigns/{cid}/reports/editsDef_v2/report/{LOCALE}"
+    try:
+        params = {
+            "access_token": token,
+            "asTree": "true",
+            "timespan": ts,
+            "group0": "Lead_Status",
+            "group1": "user",
+            "column0": "completed",
+        }
+        data = fetch_json(base_url, params, label, "leads: Lead_Status>user")
+        if data and isinstance(data, dict):
+            for sgrp in data.get("groups", []):
+                if not isinstance(sgrp, dict): continue
+                sv = str(sgrp.get("value", "")).strip().upper()
+                bucket = None
+                if sv in {s.upper() for s in SELLER_STATUSES}: bucket = "seller"
+                elif sv in {s.upper() for s in RENTAL_STATUSES}: bucket = "rental"
+                elif sv in {s.upper() for s in EMAIL_STATUSES}: bucket = "email"
+                if bucket is None: continue
+                for u in sgrp.get("groups", sgrp.get("children", [])):
+                    if not isinstance(u, dict): continue
+                    ag = str(u.get("value", ""))
+                    ucols = u.get("columns", [])
+                    cnt = 0
+                    if ucols:
+                        try: cnt = int(ucols[0]) if ucols[0] not in (None,"","-") else 0
+                        except: pass
+                    if ag and ag != "-":
+                        if ag not in result: result[ag] = {"seller":0,"rental":0,"email":0}
+                        result[ag][bucket] += cnt
+    except Exception as e:
+        print(f"  [{label}] fetch_lead_counts_bf error: {e}")
+    return result
+
 def fetch_campaign_week(campaign, date_from, date_to):
     cid   = campaign["id"]
     token = campaign["token"]
@@ -154,6 +196,17 @@ def fetch_campaign_week(campaign, date_from, date_to):
     grp = data.get("groups", [])
     if isinstance(grp, list) and len(grp) > 0:
         print(f"  [{label}] editsDef_v2 -> {len(grp)} groups")
+        # Fetch lead counts and attach to each group row
+        lead_counts = fetch_lead_counts_bf(cid, token, ts, label)
+        if lead_counts:
+            print(f"  [{label}] lead counts: {lead_counts}")
+            for item in grp:
+                if isinstance(item, dict):
+                    ag_name = str(item.get("value","")).strip()
+                    if ag_name in lead_counts:
+                        item["seller"] = lead_counts[ag_name]["seller"]
+                        item["rental"] = lead_counts[ag_name]["rental"]
+                        item["email"]  = lead_counts[ag_name]["email"]
         return grp
 
     print(f"  [{label}] editsDef_v2 -> empty groups")
