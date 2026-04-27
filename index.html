@@ -3,12 +3,12 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Quay 1 — Performance Dashboard</title>
+<title>Quay 1 â Performance Dashboard</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800;900&family=Permanent+Marker&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-/* ── QUAY 1 BRAND ────────────────────────────────────────────────── */
+/* ââ QUAY 1 BRAND ââââââââââââââââââââââââââââââââââââââââââââââââââ */
 :root{
   --brand:    #3D5BA6;   /* Quay 1 primary blue */
   --brand-dk: #2E4480;   /* darker shade */
@@ -34,7 +34,7 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Montserrat',Arial,sans-serif;background:var(--light);color:var(--text);min-height:100vh}
 
-/* ── HEADER ─────────────────────────────────────────────────────── */
+/* ââ HEADER âââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 header{
   background:linear-gradient(135deg,var(--brand) 0%,var(--brand-xdk) 100%);
   padding:0 28px;display:flex;align-items:center;justify-content:space-between;
@@ -56,10 +56,10 @@ header{
 .btn-outline{background:transparent;border:1.5px solid rgba(255,255,255,.3);color:#fff}
 .btn-outline:hover{background:rgba(255,255,255,.1)}
 
-/* ── LAYOUT ──────────────────────────────────────────────────────── */
+/* ââ LAYOUT ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 main{max-width:1440px;margin:0 auto;padding:22px 20px 60px}
 
-/* ── TAB BAR ─────────────────────────────────────────────────────── */
+/* ââ TAB BAR âââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .tab-bar{
   display:flex;gap:3px;margin-bottom:22px;background:var(--card);
   padding:5px;border-radius:11px;box-shadow:var(--sh);width:fit-content;flex-wrap:wrap;
@@ -72,7 +72,7 @@ main{max-width:1440px;margin:0 auto;padding:22px 20px 60px}
 .tab.active{background:var(--brand);color:#fff;box-shadow:0 2px 10px rgba(61,91,166,.35)}
 .tab-panel{display:none}.tab-panel.active{display:block}
 
-/* ── SUMMARY CARDS ───────────────────────────────────────────────── */
+/* ââ SUMMARY CARDS âââââââââââââââââââââââââââââââââââââââââââââââââ */
 .srow{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
 @media(max-width:900px){.srow{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:560px){.srow{grid-template-columns:repeat(2,1fr)}}
@@ -87,7 +87,7 @@ main{max-width:1440px;margin:0 auto;padding:22px 20px 60px}
 .sc-val{font-size:26px;font-weight:900;color:var(--brand);line-height:1}
 .sc-sub{font-size:10px;color:var(--muted);margin-top:4px}
 
-/* ── BENCH BANNER ────────────────────────────────────────────────── */
+/* ââ BENCH BANNER ââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .bench{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center}
 .bp{padding:5px 14px;border-radius:20px;font-size:11px;font-weight:700;display:flex;align-items:center;gap:5px}
 .bp.blue{background:var(--sky-l);color:var(--brand)}
@@ -95,7 +95,7 @@ main{max-width:1440px;margin:0 auto;padding:22px 20px 60px}
 .bp.gold{background:var(--yellow-l);color:#9A7800}
 .auto-tag{margin-left:auto;font-size:10px;color:var(--muted);font-style:italic}
 
-/* ── TABLE ───────────────────────────────────────────────────────── */
+/* ââ TABLE âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .tw{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow-x:auto;margin-bottom:18px}
 .th{padding:14px 18px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border)}
 .th h2{font-size:12px;font-weight:800;color:var(--brand);text-transform:uppercase;letter-spacing:.5px}
@@ -113,7 +113,7 @@ tbody tr:hover{background:var(--sky-l)}
 tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
 .ag{font-weight:800;color:var(--brand)}
 
-/* ── BADGES ──────────────────────────────────────────────────────── */
+/* ââ BADGES ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .status{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;font-size:10px;font-weight:700}
 .status.green{background:var(--green-l);color:var(--green)}
 .status.amber{background:var(--amber-l);color:var(--amber)}
@@ -125,12 +125,12 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
 .mx.neu{background:var(--sky-l);color:var(--brand)}
 .mx.pur{background:#EDE9FF;color:#5B3FA6}
 
-/* ── LEGEND ──────────────────────────────────────────────────────── */
+/* ââ LEGEND ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .leg{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:12px}
 .li{display:flex;align-items:center;gap:5px;font-size:10px;font-weight:600;color:var(--muted)}
 .ld{width:9px;height:9px;border-radius:50%;flex-shrink:0}
 
-/* ── REPORTS TAB ─────────────────────────────────────────────────── */
+/* ââ REPORTS TAB âââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .range-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-bottom:18px}
 .range-card h2{font-size:12px;font-weight:800;color:var(--brand);margin-bottom:12px;text-transform:uppercase;letter-spacing:.5px}
 .presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
@@ -154,7 +154,7 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
 .no-data{text-align:center;padding:48px;color:var(--muted)}
 .no-data .ic{font-size:40px;margin-bottom:10px}
 
-/* ── COMPARE TAB ─────────────────────────────────────────────────── */
+/* ââ COMPARE TAB âââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .compare-controls{
   background:var(--card);border-radius:var(--r);box-shadow:var(--sh);
   padding:20px;margin-bottom:18px;display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap;
@@ -183,7 +183,7 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
 .cs-val.win{color:var(--green)}
 .cs-val.lose{color:var(--qred)}
 
-/* Fixed chart containers — key fix for "too big" issue */
+/* Fixed chart containers â key fix for "too big" issue */
 .charts-compare{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
 @media(max-width:800px){.charts-compare{grid-template-columns:1fr}}
 .cc{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px}
@@ -191,7 +191,7 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
 .cc-sub{font-size:10px;color:var(--muted);margin-bottom:12px}
 .cc canvas{max-height:220px;width:100%!important}
 
-/* ── WORK TIME TAB ───────────────────────────────────────────────── */
+/* ââ WORK TIME TAB âââââââââââââââââââââââââââââââââââââââââââââââââ */
 .wt-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px}
 @media(max-width:800px){.wt-grid{grid-template-columns:1fr}}
 .upload-zone{
@@ -207,7 +207,7 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
 .wt-bar{height:100%;border-radius:3px;transition:width .5s ease}
 .wt-bar.good{background:var(--green)}.wt-bar.warn{background:var(--amber)}.wt-bar.bad{background:var(--qred)}
 
-/* ── EXECUTIVE TAB ───────────────────────────────────────────────── */
+/* ââ EXECUTIVE TAB âââââââââââââââââââââââââââââââââââââââââââââââââ */
 .exec-header{
   background:linear-gradient(135deg,var(--brand) 0%,var(--brand-xdk) 100%);
   border-radius:var(--r);padding:28px 32px;margin-bottom:22px;
@@ -244,7 +244,7 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
 .exec-breakdown{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:18px}
 .exec-breakdown .th h2{color:var(--brand)}
 
-/* ── TOAST ───────────────────────────────────────────────────────── */
+/* ââ TOAST âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 .toast{
   position:fixed;bottom:22px;right:22px;background:var(--brand);color:#fff;
   padding:12px 20px;border-radius:10px;font-size:12px;font-weight:700;
@@ -253,11 +253,11 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
 }
 .toast.show{transform:translateY(0);opacity:1}
 
-/* ── EXEC CHARTS GRID ───────────────────────────────────────────── */
+/* ââ EXEC CHARTS GRID âââââââââââââââââââââââââââââââââââââââââââââ */
 #exec-charts{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:18px }
 @media(max-width:800px){ #exec-charts{ grid-template-columns:1fr } }
 
-/* ── PRINT ───────────────────────────────────────────────────────── */
+/* ââ PRINT âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ */
 @media print{
   header{position:relative}.tab-bar,.btn,.bench .auto-tag,.upload-zone,.compare-controls,.exec-period,.ep-btn{display:none!important}
   .tab-panel{display:block!important}.comp-grid{grid-template-columns:1fr 1fr}
@@ -266,14 +266,14 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
   body{background:#fff}
 }
 
-/* ── DAILY STATS TAB ─────────────────────────────────────────────── */
+/* ââ DAILY STATS TAB âââââââââââââââââââââââââââââââââââââââââââââââ */
 .daily-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:18px}
 @media(max-width:900px){.daily-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:560px){.daily-grid{grid-template-columns:repeat(2,1fr)}}
 .daily-kpi{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:16px;text-align:center}
 .daily-kpi .dkv{font-size:28px;font-weight:800;color:var(--brand)}
 .daily-kpi .dkl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);margin-top:4px}
-/* ── MANAGER REPORTS TAB ─────────────────────────────────────────── */
+/* ââ MANAGER REPORTS TAB âââââââââââââââââââââââââââââââââââââââââââ */
 .mgr-filters{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);padding:20px;margin-bottom:18px}
 .mgr-filters h2{font-size:12px;font-weight:800;color:var(--brand);margin-bottom:14px;text-transform:uppercase;letter-spacing:.5px}
 .mgr-filter-row{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end}
@@ -299,14 +299,14 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
   <div class="logo">
     <div class="logo-text">
       <h1>Quay 1 International Realty</h1>
-      <p>Performance Dashboard &nbsp;·&nbsp; <em>Navigating Success</em></p>
+      <p>Performance Dashboard &nbsp;Â·&nbsp; <em>Navigating Success</em></p>
     </div>
   </div>
   <div class="hdr-r">
-    <span class="pill pill-muted" id="genTime">Loading…</span>
-    <span class="pill pill-yellow" id="weekLabel">—</span>
-    <button class="btn btn-outline" onclick="window.print()">🖨 Print</button>
-    <button class="btn btn-yellow" onclick="exportCSV()">⬇ Export CSV</button>
+    <span class="pill pill-muted" id="genTime">Loadingâ¦</span>
+    <span class="pill pill-yellow" id="weekLabel">â</span>
+    <button class="btn btn-outline" onclick="window.print()">ð¨ Print</button>
+    <button class="btn btn-yellow" onclick="exportCSV()">â¬ Export CSV</button>
   </div>
 </header>
 
@@ -314,17 +314,17 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
   <div id="errBanner" style="display:none;background:var(--qred-l);color:var(--qred);padding:12px 18px;border-radius:10px;margin-bottom:16px;font-size:12px;font-weight:700"></div>
 
   <div class="tab-bar">
-    <button class="tab active" onclick="switchTab('exec',this)">🏆 Overview</button>
-    <button class="tab" onclick="switchTab('rm',this)">📋 RMs (<span id="rm-cnt">—</span>)</button>
-    <button class="tab" onclick="switchTab('fancy',this)">⚡ Fancy (<span id="fc-cnt">—</span>)</button>
-    <button class="tab" onclick="switchTab('reports',this)">📅 Reports</button>
-    <button class="tab" onclick="switchTab('compare',this)">⚖️ Compare</button>
-    <button class="tab" onclick="switchTab('wt',this)">⏱ Work Time</button>
-    <button class="tab" onclick="switchTab('daily',this)">📆 Daily Stats</button>
-    <button class="tab" onclick="switchTab('mgr',this)">📊 Manager Reports</button>
+    <button class="tab active" onclick="switchTab('exec',this)">ð Overview</button>
+    <button class="tab" onclick="switchTab('rm',this)">ð RMs (<span id="rm-cnt">â</span>)</button>
+    <button class="tab" onclick="switchTab('fancy',this)">â¡ Fancy (<span id="fc-cnt">â</span>)</button>
+    <button class="tab" onclick="switchTab('reports',this)">ð Reports</button>
+    <button class="tab" onclick="switchTab('compare',this)">âï¸ Compare</button>
+    <button class="tab" onclick="switchTab('wt',this)">â± Work Time</button>
+    <button class="tab" onclick="switchTab('daily',this)">ð Daily Stats</button>
+    <button class="tab" onclick="switchTab('mgr',this)">ð Manager Reports</button>
   </div>
 
-  <!-- ═══ EXECUTIVE OVERVIEW TAB ═══ -->
+  <!-- âââ EXECUTIVE OVERVIEW TAB âââ -->
   <div class="tab-panel active" id="tab-exec">
     <div class="exec-header">
       <div>
@@ -337,79 +337,79 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
         <button class="ep-btn" onclick="setExecPeriod('month',this)">This Month</button>
         <button class="ep-btn" onclick="setExecPeriod('quarter',this)">Last 90 Days</button>
         <button class="ep-btn" onclick="setExecPeriod('all',this)">All Time</button>
-        <button class="ep-btn" onclick="exportExec()" style="background:rgba(253,197,3,.15);border-color:var(--yellow);color:var(--yellow)">⬇ Export</button>
+        <button class="ep-btn" onclick="exportExec()" style="background:rgba(253,197,3,.15);border-color:var(--yellow);color:var(--yellow)">â¬ Export</button>
       </div>
     </div>
     <div class="exec-kpis" id="exec-kpis">
-      <div class="ek"><div class="ek-icon">👥</div><div class="ek-val">—</div><div class="ek-lbl">Active Callers</div><div class="ek-sub">RM + Fancy combined</div></div>
-      <div class="ek yk"><div class="ek-icon">📞</div><div class="ek-val">—</div><div class="ek-lbl">Total Calls Made</div><div class="ek-sub">across all callers</div></div>
+      <div class="ek"><div class="ek-icon">ð¥</div><div class="ek-val">â</div><div class="ek-lbl">Active Callers</div><div class="ek-sub">RM + Fancy combined</div></div>
+      <div class="ek yk"><div class="ek-icon">ð</div><div class="ek-val">â</div><div class="ek-lbl">Total Calls Made</div><div class="ek-sub">across all callers</div></div>
       <div class="ek gk"><div class="ek-icon">&#127968;</div>
-      <div class="ek-val">—</div>
+      <div class="ek-val">â</div>
       <div class="ek-lbl">Seller Leads</div>
       <div class="ek-sub">this week</div>
     </div>
       <div class="ek sk"><div class="ek-icon">&#127968;</div>
-      <div class="ek-val">—</div>
+      <div class="ek-val">â</div>
       <div class="ek-lbl">Rental Leads</div>
       <div class="ek-sub">this week</div>
     </div>
-      <div class="ek rk"><div class="ek-icon">📧</div><div class="ek-val">—</div><div class="ek-lbl">Emails Collected</div><div class="ek-sub">contact data captured</div></div>
+      <div class="ek rk"><div class="ek-icon">ð§</div><div class="ek-val">â</div><div class="ek-lbl">Emails Collected</div><div class="ek-sub">contact data captured</div></div>
     </div>
     <div id="exec-breakdown">
-      <div class="no-data"><div class="ic">📊</div><p>Loading data…</p></div>
+      <div class="no-data"><div class="ic">ð</div><p>Loading dataâ¦</p></div>
     </div>
 
     <!-- Monthly comparison charts -->
     <div id="exec-charts" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px">
       <div class="cc">
-        <div class="cc-title">📞 Calls by Month</div>
-        <div class="cc-sub">Total calls made — month over month</div>
+        <div class="cc-title">ð Calls by Month</div>
+        <div class="cc-sub">Total calls made â month over month</div>
         <canvas id="ch-calls" style="max-height:240px"></canvas>
       </div>
       <div class="cc">
-        <div class="cc-title">🏆 Leads by Month</div>
-        <div class="cc-sub">Total leads (seller + rental) — month over month</div>
+        <div class="cc-title">ð Leads by Month</div>
+        <div class="cc-sub">Total leads (seller + rental) â month over month</div>
         <canvas id="ch-leads" style="max-height:240px"></canvas>
       </div>
       <div class="cc">
-        <div class="cc-title">📧 Emails by Month</div>
-        <div class="cc-sub">Emails collected — month over month</div>
+        <div class="cc-title">ð§ Emails by Month</div>
+        <div class="cc-sub">Emails collected â month over month</div>
         <canvas id="ch-email" style="max-height:240px"></canvas>
       </div>
       <div class="cc">
-        <div class="cc-title">🏠 Rentals by Month</div>
-        <div class="cc-sub">Rental leads specifically — month over month</div>
+        <div class="cc-title">ð  Rentals by Month</div>
+        <div class="cc-sub">Rental leads specifically â month over month</div>
         <canvas id="ch-rental" style="max-height:240px"></canvas>
       </div>
     </div>
   </div>
 
-  <!-- ═══ RM TAB ═══ -->
+  <!-- âââ RM TAB âââ -->
   <div class="tab-panel" id="tab-rm">
     <div class="bench">
-      <div class="bp blue">🎯 45 calls/hour target</div>
-      <div class="bp green">✅ ≥17% success rate</div>
-      <div class="bp gold">📞 315 calls/day target</div>
-      <span class="auto-tag">Current week · <a href="#" onclick="switchTabById('reports')" style="color:var(--brand);font-weight:700;text-decoration:none">📅 View history in Reports →</a></span>
+      <div class="bp blue">ð¯ 45 calls/hour target</div>
+      <div class="bp green">â â¥17% success rate</div>
+      <div class="bp gold">ð 315 calls/day target</div>
+      <span class="auto-tag">Current week Â· <a href="#" onclick="switchTabById('reports')" style="color:var(--brand);font-weight:700;text-decoration:none">ð View history in Reports â</a></span>
     </div>
     <div class="srow" id="rm-summary"></div>
     <div class="leg">
-      <div class="li"><div class="ld" style="background:var(--green)"></div>On Target — both KPIs met</div>
-      <div class="li"><div class="ld" style="background:var(--amber)"></div>Partial — one KPI met</div>
-      <div class="li"><div class="ld" style="background:var(--qred)"></div>Below — both KPIs missed</div>
+      <div class="li"><div class="ld" style="background:var(--green)"></div>On Target â both KPIs met</div>
+      <div class="li"><div class="ld" style="background:var(--amber)"></div>Partial â one KPI met</div>
+      <div class="li"><div class="ld" style="background:var(--qred)"></div>Below â both KPIs missed</div>
     </div>
     <div class="tw">
       <div class="th"><h2>Relationship Manager Performance</h2></div>
       <table>
         <thead><tr>
           <th>#</th><th>Agent</th>
-          <th class="sort" onclick="sortT('rm','calls')">Calls ⇅</th>
+          <th class="sort" onclick="sortT('rm','calls')">Calls â</th>
           <th>DF Hours</th>
-          <th class="sort" onclick="sortT('rm','cph')">Calls/Hr ⇅</th>
+          <th class="sort" onclick="sortT('rm','cph')">Calls/Hr â</th>
           <th>Success</th>
-          <th class="sort" onclick="sortT('rm','sr')">Success % ⇅</th>
+          <th class="sort" onclick="sortT('rm','sr')">Success % â</th>
           <th>Rental</th>
-          <th class="sort" onclick="sortT('rm','seller')">Seller ⇅</th>
+          <th class="sort" onclick="sortT('rm','seller')">Seller â</th>
           <th>Email</th><th>Status</th>
         </tr></thead>
         <tbody id="rm-tbody"></tbody>
@@ -417,13 +417,13 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
     </div>
   </div>
 
-  <!-- ═══ FANCY TAB ═══ -->
+  <!-- âââ FANCY TAB âââ -->
   <div class="tab-panel" id="tab-fancy">
     <div class="bench">
-      <div class="bp blue">🎯 45 calls/hour target</div>
-      <div class="bp green">✅ ≥20% success rate</div>
-      <div class="bp gold">📞 315 calls/day target</div>
-      <span class="auto-tag">Current week · <a href="#" onclick="switchTabById('reports')" style="color:var(--brand);font-weight:700;text-decoration:none">📅 View history in Reports →</a></span>
+      <div class="bp blue">ð¯ 45 calls/hour target</div>
+      <div class="bp green">â â¥20% success rate</div>
+      <div class="bp gold">ð 315 calls/day target</div>
+      <span class="auto-tag">Current week Â· <a href="#" onclick="switchTabById('reports')" style="color:var(--brand);font-weight:700;text-decoration:none">ð View history in Reports â</a></span>
     </div>
     <div class="srow" id="fc-summary"></div>
     <div class="leg">
@@ -436,13 +436,13 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
       <table>
         <thead><tr>
           <th>#</th><th>Agent</th><th>Division(s)</th>
-          <th class="sort" onclick="sortT('fancy','calls')">Calls ⇅</th>
+          <th class="sort" onclick="sortT('fancy','calls')">Calls â</th>
           <th>DF Hours</th>
-          <th class="sort" onclick="sortT('fancy','cph')">Calls/Hr ⇅</th>
+          <th class="sort" onclick="sortT('fancy','cph')">Calls/Hr â</th>
           <th>Success</th>
-          <th class="sort" onclick="sortT('fancy','sr')">Success % ⇅</th>
+          <th class="sort" onclick="sortT('fancy','sr')">Success % â</th>
           <th>Rental</th>
-          <th class="sort" onclick="sortT('fancy','seller')">Seller ⇅</th>
+          <th class="sort" onclick="sortT('fancy','seller')">Seller â</th>
           <th>Email</th><th>Status</th>
         </tr></thead>
         <tbody id="fc-tbody"></tbody>
@@ -450,10 +450,10 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
     </div>
   </div>
 
-  <!-- ═══ REPORTS TAB ═══ -->
+  <!-- âââ REPORTS TAB âââ -->
   <div class="tab-panel" id="tab-reports">
     <div class="range-card">
-      <h2>📅 Select Date Range</h2>
+      <h2>ð Select Date Range</h2>
       <div class="presets" id="presets"></div>
       <div class="range-inputs">
         <label>From</label>
@@ -464,33 +464,33 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
       </div>
     </div>
     <div class="view-toggle">
-      <button class="vt-btn active" id="vt-overall" onclick="setView('overall',this)">📊 Overall Report</button>
-      <button class="vt-btn" id="vt-caller"  onclick="setView('caller',this)">👤 Per Caller</button>
+      <button class="vt-btn active" id="vt-overall" onclick="setView('overall',this)">ð Overall Report</button>
+      <button class="vt-btn" id="vt-caller"  onclick="setView('caller',this)">ð¤ Per Caller</button>
     </div>
     <div id="report-content">
-      <div class="no-data"><div class="ic">📅</div><p>Select a date range above and click <strong>Apply</strong>.</p></div>
+      <div class="no-data"><div class="ic">ð</div><p>Select a date range above and click <strong>Apply</strong>.</p></div>
     </div>
   </div>
 
-  <!-- ═══ COMPARE TAB ═══ -->
+  <!-- âââ COMPARE TAB âââ -->
   <div class="tab-panel" id="tab-compare">
 
     <!-- Week vs Week -->
     <div class="compare-controls" style="margin-bottom:10px">
       <div class="cs-wrap">
         <label>Week A</label>
-        <select id="wk-a" onchange="updateWeekCompare()"><option value="">— Select week —</option></select>
+        <select id="wk-a" onchange="updateWeekCompare()"><option value="">â Select week â</option></select>
       </div>
-      <div class="vs-badge">📅</div>
+      <div class="vs-badge">ð</div>
       <div class="cs-wrap">
         <label>Week B</label>
-        <select id="wk-b" onchange="updateWeekCompare()"><option value="">— Select week —</option></select>
+        <select id="wk-b" onchange="updateWeekCompare()"><option value="">â Select week â</option></select>
       </div>
       <div style="display:flex;align-items:flex-end">
         <button onclick="setQuickWeeks()" style="padding:10px 18px;background:var(--yellow);color:var(--brand-xdk);border:none;border-radius:9px;font-weight:800;font-size:11px;cursor:pointer;font-family:'Montserrat',Arial,sans-serif;">Last Week vs Week Before</button>
       </div>
     </div>
-    <div id="wk-cmp-result"><div class="no-data"><div class="ic">📅</div><p>Select two weeks above to compare full-team performance, or click "Last Week vs Week Before".</p></div></div>
+    <div id="wk-cmp-result"><div class="no-data"><div class="ic">ð</div><p>Select two weeks above to compare full-team performance, or click "Last Week vs Week Before".</p></div></div>
 
     <hr style="border:none;border-top:1.5px solid var(--border);margin:28px 0 22px"/>
 
@@ -499,33 +499,33 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
     <div class="compare-controls">
       <div class="cs-wrap">
         <label>Caller A</label>
-        <select id="cmp-a" onchange="updateCompare()"><option value="">— Select caller —</option></select>
+        <select id="cmp-a" onchange="updateCompare()"><option value="">â Select caller â</option></select>
       </div>
-      <div class="vs-badge">⚖️</div>
+      <div class="vs-badge">âï¸</div>
       <div class="cs-wrap">
         <label>Caller B</label>
-        <select id="cmp-b" onchange="updateCompare()"><option value="">— Select caller —</option></select>
+        <select id="cmp-b" onchange="updateCompare()"><option value="">â Select caller â</option></select>
       </div>
       <div style="display:flex;flex-direction:column;gap:6px">
         <label style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted)">Date Range</label>
         <select id="cmp-range" onchange="updateCompare()" style="border:2px solid var(--border);border-radius:9px;padding:10px 13px;font-size:12px;font-weight:600;color:var(--text);background:var(--light);outline:none;cursor:pointer;font-family:'Montserrat',Arial,sans-serif;"><option value="current">Current Week</option><option value="lastweek">Last Week</option><option value="month">Last 30 Days</option><option value="quarter">Last 90 Days</option><option value="all">All Time</option></select>
       </div>
     </div>
-    <div id="compare-content"><div class="no-data"><div class="ic">⚖️</div><p>Select two callers above to compare their performance.</p></div></div>
+    <div id="compare-content"><div class="no-data"><div class="ic">âï¸</div><p>Select two callers above to compare their performance.</p></div></div>
   </div>
 
 <div class="tab-panel" id="tab-wt">
     <div class="bench">
-      <div class="bp blue">📊 DialFire Hours = active dialler time</div>
-      <div class="bp gold">⏱ ConnectTeams = total clocked-in time</div>
-      <div class="bp green">🎯 Efficiency target: ≥70%</div>
+      <div class="bp blue">ð DialFire Hours = active dialler time</div>
+      <div class="bp gold">â± ConnectTeams = total clocked-in time</div>
+      <div class="bp green">ð¯ Efficiency target: â¥70%</div>
     </div>
     <div class="wt-grid">
       <div class="upload-zone" onclick="document.getElementById('ct-file').click()">
-        <div style="font-size:36px;margin-bottom:10px">📂</div>
+        <div style="font-size:36px;margin-bottom:10px">ð</div>
         <h3>Upload ConnectTeams Export</h3>
-        <p>Go to ConnectTeams → Reports → Time Tracking<br/>
-        Select the matching week → Export as CSV<br/>
+        <p>Go to ConnectTeams â Reports â Time Tracking<br/>
+        Select the matching week â Export as CSV<br/>
         Expected columns: <strong>Name, Total Hours</strong></p>
         <button class="btn-upload" onclick="event.stopPropagation();document.getElementById('ct-file').click()">Choose File</button>
         <input type="file" id="ct-file" class="file-input" accept=".csv" onchange="handleCT(event)"/>
@@ -533,23 +533,23 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
       <div class="sc" style="justify-content:center;display:flex;flex-direction:column">
         <div class="sc-lbl">How it works</div>
         <div style="font-size:12px;line-height:2.4;margin-top:8px;color:var(--muted)">
-          🔵 &nbsp;<strong>DialFire Hours</strong> = actual dialler time<br/>
-          🟡 &nbsp;<strong>ConnectTeams Hours</strong> = clocked-in time<br/>
-          📊 &nbsp;<strong>Efficiency</strong> = DF ÷ CT (target ≥70%)<br/>
-          ✅ &nbsp;Green = on track &nbsp; ⚠️ Amber = low
+          ðµ &nbsp;<strong>DialFire Hours</strong> = actual dialler time<br/>
+          ð¡ &nbsp;<strong>ConnectTeams Hours</strong> = clocked-in time<br/>
+          ð &nbsp;<strong>Efficiency</strong> = DF Ã· CT (target â¥70%)<br/>
+          â &nbsp;Green = on track &nbsp; â ï¸ Amber = low
         </div>
         <div id="ct-status" style="margin-top:14px;font-size:12px;color:var(--muted);font-weight:600">No file uploaded yet.</div>
       </div>
     </div>
     <div id="wt-table-wrap">
-      <div class="no-data"><div class="ic">⏱</div><p>Upload a ConnectTeams CSV to see the DialFire vs clocked-time comparison.</p></div>
+      <div class="no-data"><div class="ic">â±</div><p>Upload a ConnectTeams CSV to see the DialFire vs clocked-time comparison.</p></div>
     </div>
   </div>
 
-  <!-- ═══ DAILY STATS TAB ═══ -->
+  <!-- âââ DAILY STATS TAB âââ -->
   <div class="tab-panel" id="tab-daily">
     <div class="range-card" style="margin-bottom:14px">
-      <h2>📆 Daily Stats</h2>
+      <h2>ð Daily Stats</h2>
       <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
         <div>
           <label style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.5px;display:block;margin-bottom:4px">Date</label>
@@ -561,14 +561,14 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
     </div>
     <div id="daily-kpis" class="daily-grid" style="display:none"></div>
     <div id="daily-table-wrap">
-      <div class="no-data"><div class="ic">📆</div><p>Select a date above and click <strong>Load</strong> to see daily caller stats.</p></div>
+      <div class="no-data"><div class="ic">ð</div><p>Select a date above and click <strong>Load</strong> to see daily caller stats.</p></div>
     </div>
   </div>
 
-  <!-- ═══ MANAGER REPORTS TAB ═══ -->
+  <!-- âââ MANAGER REPORTS TAB âââ -->
   <div class="tab-panel" id="tab-mgr">
     <div class="mgr-filters">
-      <h2>📊 Manager Reports — Filter by Date &amp; Campaign</h2>
+      <h2>ð Manager Reports â Filter by Date &amp; Campaign</h2>
       <div class="mgr-filter-row">
         <div>
           <label>From</label>
@@ -591,7 +591,7 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
       </div>
     </div>
     <div id="mgr-report-wrap">
-      <div class="no-data"><div class="ic">📊</div><p>Select a date range and at least one campaign, then click <strong>Run Report</strong>.</p></div>
+      <div class="no-data"><div class="ic">ð</div><p>Select a date range and at least one campaign, then click <strong>Run Report</strong>.</p></div>
     </div>
   </div>
 
@@ -600,11 +600,11 @@ tbody td{padding:11px 14px;font-size:12px;white-space:nowrap}
 <div class="toast" id="toast"></div>
 
 <script>
-// ─── CONFIG ──────────────────────────────────────────────────────
+// âââ CONFIG ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const B = { rm:{cph:45,sr:.17}, fancy:{cph:45,sr:.20} };
 const WT_TARGET = .70;
 
-// ─── STATE ───────────────────────────────────────────────────────
+// âââ STATE âââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 let CUR  = null;
 let HIST = {};
 let SORT = { rm:{k:'sr',asc:false}, fancy:{k:'sr',asc:false} };
@@ -615,7 +615,7 @@ let ctData = [];
 let execPeriod = 'week';
 let execAgents = [];
 
-// ─── HELPERS ─────────────────────────────────────────────────────
+// âââ HELPERS âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 const cph = d => d.workTime > 0 ? d.calls / d.workTime : 0;
 const sr  = d => d.calls > 0 ? d.success / d.calls : 0;
 const pct = (n,d=1) => (n*100).toFixed(d)+'%';
@@ -628,15 +628,15 @@ function stOf(d, bench) {
 }
 function mc(v,t){ return v>=t?'good':v>=t*.85?'warn':'bad'; }
 function stHTML(s){
-  if(s==='green') return '<span class="status green">✅ On Target</span>';
-  if(s==='amber') return '<span class="status amber">⚠️ Partial</span>';
-  return '<span class="status red">❌ Below</span>';
+  if(s==='green') return '<span class="status green">â On Target</span>';
+  if(s==='amber') return '<span class="status amber">â ï¸ Partial</span>';
+  return '<span class="status red">â Below</span>';
 }
 function fmtWeek(str){
   try{
     const d=new Date(str+'T00:00:00'),e=new Date(d);e.setDate(d.getDate()+4);
     const f=x=>x.toLocaleDateString('en-ZA',{day:'numeric',month:'short'});
-    return `Week of ${f(d)} – ${f(e)}`;
+    return `Week of ${f(d)} â ${f(e)}`;
   }catch{return str}
 }
 function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
@@ -644,7 +644,7 @@ function addDays(str,n){const p=str.split('-');const d=new Date(+p[0],+p[1]-1,+p
 function firstOfMonth(offset=0){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+offset);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function lastOfMonth(offset=0){const d=new Date();d.setDate(1);d.setMonth(d.getMonth()+offset+1);d.setDate(0);return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 
-// ─── LOAD ─────────────────────────────────────────────────────────
+// âââ LOAD âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 async function init(){
   try{
     const [r1,r2] = await Promise.all([
@@ -679,9 +679,9 @@ async function init(){
   renderExec();
 }
 
-function err(msg){ const b=document.getElementById('errBanner'); b.style.display='block'; b.textContent='⚠ '+msg; }
+function err(msg){ const b=document.getElementById('errBanner'); b.style.display='block'; b.textContent='â  '+msg; }
 
-// ─── SUMMARY CARDS ────────────────────────────────────────────────
+// âââ SUMMARY CARDS ââââââââââââââââââââââââââââââââââââââââââââââââ
 function buildSummary(data, bench, id){
   const tC=data.reduce((a,d)=>a+d.calls,0);
   const tS=data.reduce((a,d)=>a+d.success,0);
@@ -698,7 +698,7 @@ function buildSummary(data, bench, id){
   ].map(x=>`<div class="sc ${x.c}"><div class="sc-lbl">${x.l}</div><div class="sc-val">${x.v}</div><div class="sc-sub">${x.s}</div></div>`).join('');
 }
 
-// ─── TABLE ────────────────────────────────────────────────────────
+// âââ TABLE ââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function buildTable(data, bench, tbId, showDiv){
   const s=SORT[showDiv?'fancy':'rm'];
   const sorted=[...data].sort((a,b)=>{
@@ -729,7 +729,7 @@ function sortT(g,k){
   else         buildTable(CUR.fancy,B.fancy,'fc-tbody',true);
 }
 
-// ─── EXECUTIVE OVERVIEW ───────────────────────────────────────────
+// âââ EXECUTIVE OVERVIEW âââââââââââââââââââââââââââââââââââââââââââ
 function setExecPeriod(p, btn){
   execPeriod = p;
   document.querySelectorAll('.ep-btn').forEach(b=>b.classList.remove('active'));
@@ -737,7 +737,7 @@ function setExecPeriod(p, btn){
   renderExec();
 }
 
-function fmtMonth(ym){ // "2025-04" → "April 2025"
+function fmtMonth(ym){ // "2025-04" â "April 2025"
   try{
     const [y,m]=ym.split('-');
     return new Date(+y,+m-1,1).toLocaleDateString('en-ZA',{month:'long',year:'numeric'});
@@ -773,33 +773,33 @@ function renderExec(){
 
   // Big KPI cards
   document.getElementById('exec-kpis').innerHTML = `
-    <div class="ek"><div class="ek-icon">👥</div>
+    <div class="ek"><div class="ek-icon">ð¥</div>
       <div class="ek-val">${tCallers}</div>
       <div class="ek-lbl">Active Callers</div>
       <div class="ek-sub">RM + Fancy combined</div>
     </div>
-    <div class="ek yk"><div class="ek-icon">📞</div>
+    <div class="ek yk"><div class="ek-icon">ð</div>
       <div class="ek-val">${tCalls.toLocaleString()}</div>
       <div class="ek-lbl">Total Calls Made</div>
       <div class="ek-sub">avg success: ${pct(avgSR)}</div>
     </div>
-    <div class="ek gk"><div class="ek-icon">🏠</div>
+    <div class="ek gk"><div class="ek-icon">ð </div>
       <div class="ek-val">${tSeller.toLocaleString()}</div>
       <div class="ek-lbl">Seller Leads</div>
       <div class="ek-sub">this week</div>
     </div>
-    <div class="ek sk"><div class="ek-icon">🏠</div>
+    <div class="ek sk"><div class="ek-icon">ð </div>
       <div class="ek-val">${tRental.toLocaleString()}</div>
       <div class="ek-lbl">Rental Leads</div>
       <div class="ek-sub">this week</div>
     </div>
-    <div class="ek rk"><div class="ek-icon">📧</div>
+    <div class="ek rk"><div class="ek-icon">ð§</div>
       <div class="ek-val">${tEmails.toLocaleString()}</div>
       <div class="ek-lbl">Emails Collected</div>
       <div class="ek-sub">contact data captured</div>
     </div>`;
 
-  // ── WEEKLY BREAKDOWN ──────────────────────────────────────────
+  // ââ WEEKLY BREAKDOWN ââââââââââââââââââââââââââââââââââââââââââ
   const histEntries = Object.entries(HIST)
     .filter(([d])=>toMonday(d)>=from&&toMonday(d)<=to)
     .sort(([a],[b])=>b.localeCompare(a));
@@ -823,7 +823,7 @@ function renderExec(){
     }).join('');
     weeklyHTML = `
       <div class="exec-breakdown">
-        <div class="th"><h2>📅 Weekly Breakdown</h2></div>
+        <div class="th"><h2>ð Weekly Breakdown</h2></div>
         <table>
           <thead><tr><th>Week</th><th>Callers</th><th>Total Calls</th><th>Success Rate</th><th>Total Leads</th><th>Emails</th></tr></thead>
           <tbody>${rows}</tbody>
@@ -831,12 +831,12 @@ function renderExec(){
       </div>`;
   } else {
     weeklyHTML = `<div style="text-align:center;padding:14px;color:var(--muted);font-size:11px;background:var(--card);border-radius:var(--r);margin-bottom:16px">
-      📌 Weekly history accumulates automatically as the data refresh runs each weekday.
+      ð Weekly history accumulates automatically as the data refresh runs each weekday.
     </div>`;
   }
 
-  // ── MONTHLY BREAKDOWN ─────────────────────────────────────────
-  // Group all HIST entries by month (not just those in range — show all months)
+  // ââ MONTHLY BREAKDOWN âââââââââââââââââââââââââââââââââââââââââ
+  // Group all HIST entries by month (not just those in range â show all months)
   const allHist = Object.entries(HIST).sort(([a],[b])=>b.localeCompare(a));
   const monthMap = {};
   allHist.forEach(([week, v])=>{
@@ -874,8 +874,8 @@ function renderExec(){
     }).join('');
     monthlyHTML = `
       <div class="exec-breakdown" style="margin-top:16px">
-        <div class="th"><h2>📆 Monthly Breakdown — All Time</h2>
-          <button class="btn btn-yellow" onclick="exportMonthly()" style="font-size:10px;padding:5px 12px">⬇ Export</button>
+        <div class="th"><h2>ð Monthly Breakdown â All Time</h2>
+          <button class="btn btn-yellow" onclick="exportMonthly()" style="font-size:10px;padding:5px 12px">â¬ Export</button>
         </div>
         <table>
           <thead><tr><th>Month</th><th>Weeks of Data</th><th>Callers</th><th>Total Calls</th><th>Success Rate</th><th>Total Leads</th><th>Emails</th></tr></thead>
@@ -884,17 +884,17 @@ function renderExec(){
       </div>`;
   }
 
-  // ── TOP PERFORMERS ───────────────────────────────────────────
+  // ââ TOP PERFORMERS âââââââââââââââââââââââââââââââââââââââââââ
   const sorted = [...execAgents].sort((a,b)=>b.calls-a.calls).slice(0,3);
   const topHTML = sorted.length ? `
     <div class="tw" style="margin-top:16px">
-      <div class="th"><h2>🏆 Top Performers</h2></div>
+      <div class="th"><h2>ð Top Performers</h2></div>
       <table>
         <thead><tr><th>Rank</th><th>Agent</th><th>Group</th><th>Calls</th><th>Success Rate</th><th>Leads</th><th>Emails</th><th>Status</th></tr></thead>
         <tbody>${sorted.map((d,i)=>{
           const bench=d._grp==='RM'?B.rm:B.fancy;
           return `<tr>
-            <td style="font-size:18px">${['🥇','🥈','🥉'][i]}</td>
+            <td style="font-size:18px">${['ð¥','ð¥','ð¥'][i]}</td>
             <td class="ag">${d.name}${d.campaigns&&d.campaigns.length?('<br><span style="font-size:9px;font-weight:400;color:var(--muted);letter-spacing:.3px">'+d.campaigns.join(', ')+'</span>'):''}</td>
             <td><span class="mx ${d._grp==='RM'?'neu':'pur'}">${d._grp}</span></td>
             <td><strong>${d.calls.toLocaleString()}</strong></td>
@@ -942,12 +942,12 @@ function exportMonthly(){
   const blob=new Blob([hdr+rows],{type:'text/csv'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download=`quay1_monthly_${today()}.csv`;a.click();
-  toast('📥 Monthly report exported!');
+  toast('ð¥ Monthly report exported!');
 }
 
-// ─── MONTHLY CHARTS ───────────────────────────────────────────────
+// âââ MONTHLY CHARTS âââââââââââââââââââââââââââââââââââââââââââââââ
 function buildMonthlyData(){
-  // Aggregate HIST by calendar month, sorted oldest→newest
+  // Aggregate HIST by calendar month, sorted oldestânewest
   const allHist = Object.entries(HIST).sort(([a],[b])=>a.localeCompare(b));
   const monthMap = {};
   allHist.forEach(([week, v])=>{
@@ -1012,7 +1012,7 @@ function makeBarChart(canvasId, labels, values, color, borderColor){
 
 function renderMonthlyCharts(){
   const monthMap = buildMonthlyData();
-  const entries  = Object.entries(monthMap); // already sorted oldest→newest
+  const entries  = Object.entries(monthMap); // already sorted oldestânewest
   if(!entries.length) return;
 
   // Abbreviate month labels: "Apr 25", "May 25" etc.
@@ -1039,14 +1039,14 @@ function renderMonthlyCharts(){
 function exportExec(){
   if(!execAgents.length){ toast('No data to export.'); return; }
   const hdr = 'Agent,Group,Calls,Success,Success%,Seller Leads,Rental Leads,Total Leads,Emails\n';
-  const rows = execAgents.map(d=>`${d.name},${d._grp||'—'},${d.calls},${d.success},${pct(sr(d))},${d.seller||0},${d.rental||0},${(d.seller||0)+(d.rental||0)},${d.email||0}`).join('\n');
+  const rows = execAgents.map(d=>`${d.name},${d._grp||'â'},${d.calls},${d.success},${pct(sr(d))},${d.seller||0},${d.rental||0},${(d.seller||0)+(d.rental||0)},${d.email||0}`).join('\n');
   const blob = new Blob([hdr+rows],{type:'text/csv'});
   const a = document.createElement('a'); a.href=URL.createObjectURL(blob);
   a.download=`quay1_executive_${execPeriod}_${today()}.csv`; a.click();
-  toast('📥 Executive report exported!');
+  toast('ð¥ Executive report exported!');
 }
 
-// ─── REPORTS ─────────────────────────────────────────────────────
+// âââ REPORTS âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function buildPresets(){
   const t=today();
   const presets=[
@@ -1078,7 +1078,7 @@ function applyRange(){
   const entries=getHistoryInRange(from,to);
   if(!entries.length){
     document.getElementById('report-content').innerHTML=
-      `<div class="no-data"><div class="ic">📭</div><p>No data found for <strong>${from}</strong> → <strong>${to}</strong>.<br/>Data accumulates as the GitHub Action runs each weekday.</p></div>`;
+      `<div class="no-data"><div class="ic">ð­</div><p>No data found for <strong>${from}</strong> â <strong>${to}</strong>.<br/>Data accumulates as the GitHub Action runs each weekday.</p></div>`;
     return;
   }
   renderReport(entries, from, to);
@@ -1147,7 +1147,7 @@ function renderReport(entries, from, to){
 
   if(reportView==='overall'){
     document.getElementById('report-content').innerHTML=kpis+`
-    <div class="tw"><div class="th"><h2>All Callers — ${from} to ${to}</h2></div>
+    <div class="tw"><div class="th"><h2>All Callers â ${from} to ${to}</h2></div>
     <table><thead><tr><th>#</th><th>Agent</th><th>Group</th><th>Weeks</th>
       <th>Calls</th><th>DF Hrs</th><th>Calls/Hr</th><th>Success</th><th>Success%</th>
       <th>Rental</th><th>Seller</th><th>Email</th></tr></thead>
@@ -1165,7 +1165,7 @@ function renderReport(entries, from, to){
     </tr>`).join('')}</tbody></table></div>`;
   } else {
     document.getElementById('report-content').innerHTML=kpis+
-      `<div class="sc-lbl" style="margin-bottom:10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted)">Individual Caller Breakdown — ${from} to ${to}</div>
+      `<div class="sc-lbl" style="margin-bottom:10px;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--muted)">Individual Caller Breakdown â ${from} to ${to}</div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px">
       ${agents.map(d=>`<div class="sc" style="border-left-color:${d._grp==='RM'?'var(--brand)':'#5B3FA6'}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
@@ -1185,7 +1185,7 @@ function renderReport(entries, from, to){
   }
 }
 
-// ─── COMPARE ─────────────────────────────────────────────────────
+// âââ COMPARE âââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function populateCompareSelects(){
   const agents=aggregateAgents(Object.values(HIST));
   if(!agents.length&&CUR){
@@ -1206,7 +1206,7 @@ function populateCompareSelects(){
   });
 }
 
-// ── WEEK vs WEEK COMPARE ──────────────────────────────────────────────
+// ââ WEEK vs WEEK COMPARE ââââââââââââââââââââââââââââââââââââââââââââââ
 function fmtShortDate(d){
   try{ const dt=new Date(d+'T00:00:00'); return dt.toLocaleDateString('en-ZA',{day:'numeric',month:'short'}); }catch{return d;}
 }
@@ -1219,7 +1219,7 @@ function populateWeekSelects(){
     while(sel.options.length>1) sel.remove(1);
     sortedWeeks.forEach(ws=>{
       const h=HIST[ws]; const we=h.weekEnd||addDays(ws,4);
-      const label='Week of '+fmtShortDate(ws)+' – '+fmtShortDate(we);
+      const label='Week of '+fmtShortDate(ws)+' â '+fmtShortDate(we);
       sel.appendChild(new Option(label,ws));
     });
   });
@@ -1256,11 +1256,11 @@ function updateWeekCompare(){
   const wsB=document.getElementById('wk-b').value;
   const el=document.getElementById('wk-cmp-result');
   if(!el) return;
-  if(!wsA||!wsB){ el.innerHTML='<div class="no-data"><div class="ic">📅</div><p>Select two weeks above to compare full-team performance.</p></div>'; return; }
-  if(wsA===wsB){ el.innerHTML='<div class="no-data"><div class="ic">📅</div><p>Please select two different weeks.</p></div>'; return; }
+  if(!wsA||!wsB){ el.innerHTML='<div class="no-data"><div class="ic">ð</div><p>Select two weeks above to compare full-team performance.</p></div>'; return; }
+  if(wsA===wsB){ el.innerHTML='<div class="no-data"><div class="ic">ð</div><p>Please select two different weeks.</p></div>'; return; }
   const sA=weekTeamStats(wsA); const sB=weekTeamStats(wsB);
-  if(!sA||!sB){ el.innerHTML='<div class="no-data"><div class="ic">🔍</div><p>No data found for one or both selected weeks.</p></div>'; return; }
-  const weekLabel=s=>'Week of '+fmtShortDate(s.weekStart)+' – '+fmtShortDate(s.weekEnd);
+  if(!sA||!sB){ el.innerHTML='<div class="no-data"><div class="ic">ð</div><p>No data found for one or both selected weeks.</p></div>'; return; }
+  const weekLabel=s=>'Week of '+fmtShortDate(s.weekStart)+' â '+fmtShortDate(s.weekEnd);
   const diffNum=(a,b)=>{ const d=a-b; const col=d>0?'var(--green)':d<0?'var(--qred)':'var(--muted)'; return '<span style="color:'+col+';font-weight:700">'+(d>=0?'+':'')+d+'</span>'; };
   const diffPctFn=(a,b)=>{ const d=a-b; const col=d>0?'var(--green)':d<0?'var(--qred)':'var(--muted)'; return '<span style="color:'+col+';font-weight:700">'+(d>=0?'+':'')+d.toFixed(1)+'%</span>'; };
   const row=(lbl,vA,vB,dH)=>'<tr><td style="font-weight:700;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:8px 12px">'+lbl+'</td><td style="padding:8px 12px;font-weight:800;font-size:14px;color:var(--brand)">'+vA+'</td><td style="padding:8px 12px;font-weight:800;font-size:14px;color:#b8860b">'+vB+'</td><td style="padding:8px 12px">'+dH+'</td></tr>';
@@ -1304,7 +1304,7 @@ function updateCompare(){
 
   if(!aData||!bData){
     document.getElementById('compare-content').innerHTML=
-      `<div class="no-data"><div class="ic">🔍</div><p>One or both callers have no data in this range. Try <strong>All Time</strong>.</p></div>`;
+      `<div class="no-data"><div class="ic">ð</div><p>One or both callers have no data in this range. Try <strong>All Time</strong>.</p></div>`;
     return;
   }
 
@@ -1322,14 +1322,14 @@ function updateCompare(){
 
   const card=(d,cls)=>`<div class="comp-card ${cls}">
     <div class="comp-name">${d.name}</div>
-    <div class="comp-group">${d._grp} · ${d.div||'—'}</div>
+    <div class="comp-group">${d._grp} Â· ${d.div||'â'}</div>
     ${metrics.map(m=>{
       const isWin = cls==='a' ? m.va>m.vb : m.vb>m.va;
       const isLose= cls==='a' ? m.va<m.vb : m.vb<m.va;
       const val   = cls==='a' ? m.va : m.vb;
       return `<div class="comp-stat">
         <span class="cs-label">${m.lbl}</span>
-        <span class="cs-val ${isWin?'win':isLose?'lose':''}">${m.fmt(val)}${isWin?' 🏆':''}</span>
+        <span class="cs-val ${isWin?'win':isLose?'lose':''}">${m.fmt(val)}${isWin?' ð':''}</span>
       </div>`;
     }).join('')}
   </div>`;
@@ -1347,11 +1347,11 @@ function updateCompare(){
     <div class="charts-compare">
       <div class="cc">
         <div class="cc-title">Performance Radar</div>
-        <div class="cc-sub">Normalised vs targets — further from centre = better</div>
+        <div class="cc-sub">Normalised vs targets â further from centre = better</div>
         <canvas id="radar-chart"></canvas>
       </div>
       <div class="cc">
-        <div class="cc-title">Key Metrics — Side by Side</div>
+        <div class="cc-title">Key Metrics â Side by Side</div>
         <div class="cc-sub">Direct comparison of absolute numbers</div>
         <canvas id="bar-chart"></canvas>
       </div>
@@ -1407,7 +1407,7 @@ function updateCompare(){
   });
 }
 
-// ─── WORK TIME ────────────────────────────────────────────────────
+// âââ WORK TIME ââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function handleCT(e){
   const file=e.target.files[0]; if(!file)return;
   const reader=new FileReader();
@@ -1426,10 +1426,10 @@ function handleCT(e){
         if(n) map[n]=(map[n]||0)+h;
       });
       ctData=Object.entries(map).map(([name,hours])=>({name,hours}));
-      document.getElementById('ct-status').innerHTML=`✅ <strong>${file.name}</strong> — ${ctData.length} agents loaded`;
+      document.getElementById('ct-status').innerHTML=`â <strong>${file.name}</strong> â ${ctData.length} agents loaded`;
       renderWT();
-      toast('✅ ConnectTeams data loaded — '+ctData.length+' agents');
-    }catch(err){ toast('❌ '+err.message); }
+      toast('â ConnectTeams data loaded â '+ctData.length+' agents');
+    }catch(err){ toast('â '+err.message); }
   };
   reader.readAsText(file);
 }
@@ -1451,12 +1451,12 @@ function renderWT(){
     <td><span class="mx ${r.grp==='RM'?'neu':'pur'}">${r.grp}</span></td>
     <td><strong>${f2(r.dfH)}h</strong></td>
     <td>${r.ctH!==null?f2(r.ctH)+'h':'<span style="color:var(--muted);font-size:11px">No match</span>'}</td>
-    <td style="font-weight:700;color:${r.diff===null?'var(--muted)':r.diff>0?'var(--green)':r.diff<-1?'var(--qred)':'var(--amber)'}">${r.diff!==null?(r.diff>=0?'+':'')+r.diff+'h':'—'}</td>
+    <td style="font-weight:700;color:${r.diff===null?'var(--muted)':r.diff>0?'var(--green)':r.diff<-1?'var(--qred)':'var(--amber)'}">${r.diff!==null?(r.diff>=0?'+':'')+r.diff+'h':'â'}</td>
     <td>
       ${r.eff!==null?`<span class="mx ${r.effCls}">${pct(r.eff)}</span>
-      <div class="wt-bar-wrap"><div class="wt-bar ${r.effCls}" style="width:${Math.min(100,Math.round(r.eff*100))}%"></div></div>`:'—'}
+      <div class="wt-bar-wrap"><div class="wt-bar ${r.effCls}" style="width:${Math.min(100,Math.round(r.eff*100))}%"></div></div>`:'â'}
     </td>
-    <td>${r.eff===null?'<span style="color:var(--muted);font-size:11px">Unmatched</span>':r.eff>=WT_TARGET?'<span class="status green">✅ Efficient</span>':r.eff>=.5?'<span class="status amber">⚠️ Low</span>':'<span class="status red">❌ Very Low</span>'}</td>
+    <td>${r.eff===null?'<span style="color:var(--muted);font-size:11px">Unmatched</span>':r.eff>=WT_TARGET?'<span class="status green">â Efficient</span>':r.eff>=.5?'<span class="status amber">â ï¸ Low</span>':'<span class="status red">â Very Low</span>'}</td>
   </tr>`).join('');
   document.getElementById('wt-table-wrap').innerHTML=`
     <div class="tw">
@@ -1470,7 +1470,7 @@ function renderWT(){
     </div>`;
 }
 
-// ─── TABS ─────────────────────────────────────────────────────────
+// âââ TABS âââââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function switchTab(id,btn){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
@@ -1488,7 +1488,7 @@ function switchTabById(id){
   return false;
 }
 
-// ─── EXPORT ──────────────────────────────────────────────────────
+// âââ EXPORT ââââââââââââââââââââââââââââââââââââââââââââââââââââââ
 function exportCSV(){
   if(!CUR){toast('No data loaded.');return;}
   const hdr='Group,Agent,Division,Calls,DF Hours,Calls/Hr,Success,Success%,Rental,Seller,Email,Status\n';
@@ -1500,7 +1500,7 @@ function exportCSV(){
   const blob=new Blob([hdr+rows],{type:'text/csv'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download=`quay1_performance_${CUR.week||CUR.periodStart}.csv`;a.click();
-  toast('📥 Exported!');
+  toast('ð¥ Exported!');
 }
 
 function toast(msg){
@@ -1511,7 +1511,7 @@ function toast(msg){
 
 window.addEventListener('DOMContentLoaded',init);
 
-// ─── DAILY STATS ──────────────────────────────────────────────────
+// âââ DAILY STATS ââââââââââââââââââââââââââââââââââââââââââââââââââ
 function initDailyDate(){
   const d = new Date(); d.setDate(d.getDate()-1);
   document.getElementById('daily-date').value = d.toISOString().split('T')[0];
@@ -1604,8 +1604,10 @@ function exportDailyCSV(){
   a.download='daily_stats_'+dateVal+'.csv';a.click();
 }
 
-// ─── MANAGER REPORTS ──────────────────────────────────────────────
+// âââ MANAGER REPORTS ââââââââââââââââââââââââââââââââââââââââââââââ
 let _mgrSortKey='calls', _mgrSortAsc=false;
+
+function _normCamp(n){return n.replace(/\s*[-\s]*(CM|NA)\s*$/i,"").trim();}
 
 function initMgrFilters(){
   const t=today(), d=new Date();
@@ -1614,7 +1616,7 @@ function initMgrFilters(){
   document.getElementById('mgr-to').value=addDays(mon,-3);
   const campSet=new Set();
   [CUR,...Object.values(HIST)].filter(Boolean).forEach(e=>{
-    [...(e.rm||[]),...(e.fancy||[])].forEach(a=>(a.campaigns||[]).forEach(c=>campSet.add(c)));
+    [...(e.rm||[]),...(e.fancy||[])].forEach(a=>(a.campaigns||[]).forEach(c=>campSet.add(_normCamp(c))));
   });
   const list=document.getElementById('mgr-camp-list');
   if(!campSet.size){list.innerHTML='<em style="font-size:12px;color:var(--muted)">No campaign data found.</em>';return;}
@@ -1637,7 +1639,7 @@ function renderMgrReport(){
   const campSet=new Set(camps), map={};
   entries.forEach(e=>{
     [...(e.rm||[]).map(a=>({...a,_grp:'RM'})),...(e.fancy||[]).map(a=>({...a,_grp:'Fancy'}))].forEach(a=>{
-      if(!(a.campaigns||[]).some(c=>campSet.has(c)))return;
+      if(!(a.campaigns||[]).some(c=>campSet.has(_normCamp(c))))return;
       const k=a.name.toLowerCase().trim();
       if(!map[k])map[k]={...a,_weeks:1};
       else{map[k].calls+=a.calls;map[k].success+=a.success;map[k].seller+=a.seller;map[k].rental+=a.rental;map[k].email+=a.email;map[k].workTime=+((map[k].workTime+a.workTime).toFixed(2));map[k]._weeks++;}
