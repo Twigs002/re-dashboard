@@ -1663,7 +1663,7 @@ function _renderMgrTable(agents,from,to,camps,weeks){
   const thHTML=cols.map((c,ci)=>{
     if(!sortKeys[ci])return '<th>'+c+'</th>';
     const k=sortKeys[ci],active=_mgrSortKey===k,arrow=active?(_mgrSortAsc?'&#8593;':'&#8595;'):'&#8597;';
-    return '<th onclick="_mgrSort(''+k+'')" style="white-space:nowrap">'+c+' <span style="opacity:'+(active?1:.4)+'">'+arrow+'</span></th>';
+    return '<th onclick="_mgrSort('+JSON.stringify(k)+')'+'" style="white-space:nowrap">'+c+' <span style="opacity:'+(active?1:.4)+'">'+arrow+'</span></th>';
   }).join('');
   const rowHTML=sorted.map((d,i)=>{
     const c=d.workTime>0?d.calls/d.workTime:0,ss=d.calls>0?d.success/d.calls:0,bench=d._grp==='RM'?B.rm:B.fancy;
