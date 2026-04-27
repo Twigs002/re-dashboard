@@ -12,7 +12,7 @@
       "rental": 0,
       "email": 145,
       "cph": 46.7,
-      "successRate": 19.0,
+      "successRate": 19,
       "workTime": 23.29,
       "meetsTarget": true,
       "is_rm": true,
@@ -29,7 +29,7 @@
       "rental": 0,
       "email": 147,
       "cph": 40.1,
-      "successRate": 22.0,
+      "successRate": 22,
       "workTime": 18.71,
       "meetsTarget": false,
       "is_rm": true,
@@ -70,23 +70,6 @@
       "campaigns": [
         "Clienthub Master",
         "New Contacts"
-      ]
-    },
-    {
-      "name": "CraigCarroll",
-      "calls": 293,
-      "success": 40,
-      "seller": 15,
-      "rental": 0,
-      "email": 23,
-      "cph": 38.0,
-      "successRate": 11.1,
-      "workTime": 7.71,
-      "meetsTarget": false,
-      "is_rm": true,
-      "campaigns": [
-        "New Contacts",
-        "Goal Diggers - CM"
       ]
     },
     {
@@ -146,7 +129,7 @@
       "rental": 0,
       "email": 1,
       "cph": 66.7,
-      "successRate": 50.0,
+      "successRate": 50,
       "workTime": 0.03,
       "meetsTarget": true,
       "is_rm": true,
@@ -155,5 +138,23 @@
       ]
     }
   ],
-  "fancy": []
+  "fancy": [
+    {
+      "name": "CraigCarroll",
+      "calls": 293,
+      "success": 40,
+      "seller": 15,
+      "rental": 0,
+      "email": 23,
+      "cph": 38,
+      "successRate": 11.1,
+      "workTime": 7.71,
+      "meetsTarget": false,
+      "is_rm": false,
+      "campaigns": [
+        "New Contacts",
+        "Goal Diggers - CM"
+      ]
+    }
+  ]
 }
