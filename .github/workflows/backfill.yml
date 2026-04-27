@@ -37,6 +37,12 @@ jobs:
           CAMPAIGN_1_TOKEN: ${{ secrets.CAMPAIGN_1_TOKEN }}
           CAMPAIGN_2_ID: ${{ secrets.CAMPAIGN_2_ID }}
           CAMPAIGN_2_TOKEN: ${{ secrets.CAMPAIGN_2_TOKEN }}
+          ASSASSINS_CM_ID: ${{ secrets.ASSASSINS_CM_ID }}
+          ASSASSINS_CM_TOKEN: ${{ secrets.ASSASSINS_CM_TOKEN }}
+          ASSASSINS_NA_ID: ${{ secrets.ASSASSINS_NA_ID }}
+          ASSASSINS_NA_TOKEN: ${{ secrets.ASSASSINS_NA_TOKEN }}
+          CAMPAIGN_CLIENTHUB_NO_ANSWER_ID: ${{ secrets.CAMPAIGN_CLIENTHUB_NO_ANSWER_ID }}
+          CAMPAIGN_CLIENTHUB_NO_ANSWER_TOKEN: ${{ secrets.CAMPAIGN_CLIENTHUB_NO_ANSWER_TOKEN }}
           DIALFIRE_CAMPAIGNS: ${{ secrets.DIALFIRE_CAMPAIGNS }}
           DIALFIRE_TENANT_ID: ${{ secrets.DIALFIRE_TENANT_ID }}
           FORCE_REFETCH: ${{ github.event.inputs.force_refetch }}
