@@ -617,7 +617,7 @@ let execAgents = [];
 
 // ─── HELPERS ─────────────────────────────────────────────────────
 const cph = d => d.workTime > 0 ? d.calls / d.workTime : 0;
-const sr  = d => d.calls > 0 ? d.success / d.calls : 0;
+const sr  = d => d.calls > 0 ? ((d.rental||0)+(d.email||0)+(d.seller||0)) / d.calls : 0;
 const pct = (n,d=1) => (n*100).toFixed(d)+'%';
 const f2  = n => Number(n).toFixed(2);
 const f1  = n => Number(n).toFixed(1);
@@ -687,7 +687,7 @@ function buildSummary(data, bench, id){
   const tS=data.reduce((a,d)=>a+d.success,0);
   const tSel=data.reduce((a,d)=>a+d.seller,0);
   const tRen=data.reduce((a,d)=>a+d.rental,0);
-  const avgSR=tC>0?tS/tC:0;
+  const tLeads=data.reduce((a,d)=>a+(d.rental||0)+(d.email||0)+(d.seller||0),0);const avgSR=tC>0?tLeads/tC:0;
   const on=data.filter(d=>stOf(d,bench)==='green').length;
   document.getElementById(id).innerHTML=[
     {l:'Total Calls',    v:tC.toLocaleString(), s:'team total',            c:'blue'},
@@ -861,7 +861,7 @@ function renderExec(){
   const monthEntries = Object.entries(monthMap).sort(([a],[b])=>b.localeCompare(a));
   if(monthEntries.length){
     const rows = monthEntries.map(([ym,m])=>{
-      const mSR = m.calls>0?m.success/m.calls:0;
+      const mSR = m.calls>0?((m.rental||0)+(m.email||0)+(m.seller||0))/m.calls:0;
       return `<tr>
         <td style="font-weight:800;color:var(--brand)">${fmtMonth(ym)}</td>
         <td style="color:var(--muted);font-size:11px">${m.weeks.size} week${m.weeks.size!==1?'s':''}</td>
@@ -936,7 +936,7 @@ function exportMonthly(){
   });
   const hdr='Month,Weeks of Data,RM Callers,Fancy Callers,Total Calls,Success Rate,Total Leads,Seller Leads,Rental Leads,Emails\n';
   const rows=Object.entries(monthMap).sort(([a],[b])=>b.localeCompare(a)).map(([ym,m])=>{
-    const sr=m.calls>0?m.success/m.calls:0;
+    const sr=m.calls>0?((m.rental||0)+(m.email||0)+(m.seller||0))/m.calls:0;
     return `${fmtMonth(ym)},${m.weeks.size},${m.rm.size},${m.fancy.size},${m.calls},${pct(sr)},${m.leads},${m.seller},${m.rental},${m.email}`;
   }).join('\n');
   const blob=new Blob([hdr+rows],{type:'text/csv'});
@@ -1134,8 +1134,8 @@ function renderReport(entries, from, to){
   const tS  =agents.reduce((a,d)=>a+d.success,0);
   const tSel=agents.reduce((a,d)=>a+d.seller,0);
   const tRen=agents.reduce((a,d)=>a+d.rental,0);
-  const tHr =agents.reduce((a,d)=>a+d.workTime,0);
-  const avgSR=tC>0?tS/tC:0;
+  const tEm=agents.reduce((a,d)=>a+(d.email||0),0);const tHr =agents.reduce((a,d)=>a+d.workTime,0);
+  const avgSR=tC>0?(tSel+tRen+tEm)/tC:0;
 
   const kpis=`<div class="srow" style="margin-bottom:16px">
     <div class="sc blue"><div class="sc-lbl">Total Calls</div><div class="sc-val">${tC.toLocaleString()}</div><div class="sc-sub">${weeks} week(s) of data</div></div>
@@ -1322,7 +1322,7 @@ function updateCompare(){
 
   const card=(d,cls)=>`<div class="comp-card ${cls}">
     <div class="comp-name">${d.name}</div>
-    <div class="comp-group">${d._grp} · ${d.div||'—'}</div>
+    <div class="comp-group">${d.is_rm ? 'RM' : 'Fancy'}</div>
     ${metrics.map(m=>{
       const isWin = cls==='a' ? m.va>m.vb : m.vb>m.va;
       const isLose= cls==='a' ? m.va<m.vb : m.vb<m.va;
@@ -1556,7 +1556,7 @@ function _renderDailyTable(agents, dateVal, isWeekly){
   }
   const tC=agents.reduce((a,d)=>a+d.calls,0), tS=agents.reduce((a,d)=>a+d.success,0);
   const tSel=agents.reduce((a,d)=>a+d.seller,0), tRen=agents.reduce((a,d)=>a+d.rental,0), tEm=agents.reduce((a,d)=>a+d.email,0);
-  const avgSR=tC>0?tS/tC:0;
+  const avgSR=tC>0?(tSel+tRen+tEm)/tC:0;
   const note = isWeekly ? '<span style="font-size:10px;color:var(--amber);font-weight:600"> &#9888; Showing weekly totals (no daily file yet)</span>' : '';
   kpisEl.innerHTML=[
     {v:tC.toLocaleString(),l:'Total Calls'},
@@ -1653,13 +1653,13 @@ function renderMgrReport(){
 function _renderMgrTable(agents,from,to,camps,weeks){
   const wrap=document.getElementById('mgr-report-wrap');
   const sorted=[...agents].sort((a,b)=>{
-    const gv=d=>_mgrSortKey==='sr'?(d.calls>0?d.success/d.calls:0):_mgrSortKey==='cph'?(d.workTime>0?d.calls/d.workTime:0):(d[_mgrSortKey]||0);
+    const gv=d=>_mgrSortKey==='sr'?(d.calls>0?((d.rental||0)+(d.email||0)+(d.seller||0))/d.calls:0):_mgrSortKey==='cph'?(d.workTime>0?d.calls/d.workTime:0):(d[_mgrSortKey]||0);
     return _mgrSortAsc?gv(a)-gv(b):gv(b)-gv(a);
   });
   const tC=agents.reduce((a,d)=>a+d.calls,0),tS=agents.reduce((a,d)=>a+d.success,0);
   const tSel=agents.reduce((a,d)=>a+d.seller,0),tRen=agents.reduce((a,d)=>a+d.rental,0);
   const tEm=agents.reduce((a,d)=>a+d.email,0),tWt=agents.reduce((a,d)=>a+d.workTime,0);
-  const avgSR=tC>0?tS/tC:0,avgCPH=tWt>0?tC/tWt:0;
+  const avgSR=tC>0?(tSel+tRen+tEm)/tC:0,avgCPH=tWt>0?tC/tWt:0;
   const cols=['#','Agent','Group','Weeks','Calls','DF Hours','Calls/Hr','Success','Success %','Rental','Seller','Email'];
   const sortKeys=[null,'name','_grp','_weeks','calls','workTime','cph','success','sr','rental','seller','email'];
   const thHTML=cols.map((c,ci)=>{
@@ -1668,7 +1668,7 @@ function _renderMgrTable(agents,from,to,camps,weeks){
     return '<th onclick="_mgrSort('+JSON.stringify(k)+')'+'" style="white-space:nowrap">'+c+' <span style="opacity:'+(active?1:.4)+'">'+arrow+'</span></th>';
   }).join('');
   const rowHTML=sorted.map((d,i)=>{
-    const c=d.workTime>0?d.calls/d.workTime:0,ss=d.calls>0?d.success/d.calls:0,bench=d._grp==='RM'?B.rm:B.fancy;
+    const c=d.workTime>0?d.calls/d.workTime:0,ss=d.calls>0?((d.rental||0)+(d.email||0)+(d.seller||0))/d.calls:0,bench=d._grp==='RM'?B.rm:B.fancy;
     return '<tr>'+
       '<td style="color:var(--muted);font-size:11px">'+(i+1)+'</td>'+
       '<td class="ag">'+d.name+(d.campaigns&&d.campaigns.length?'<br><span style="font-size:9px;font-weight:400;color:var(--muted)">'+d.campaigns.join(', ')+'</span>':'')+'</td>'+
