@@ -236,9 +236,18 @@ def _norm_camp(n):
 
 def parse_row(row):
     name = str(row.get("value") or row.get("name") or row.get("user") or row.get("username") or row.get("agent_name") or "Unknown").strip()
+    # Exclude placeholder / system agent names
+    if not name or name in ("-", "\u2014", "\u2013", "Unknown", "None", ""):
+        return None
 
-    calls   = int(row.get("completed")  or row.get("calls",   0) or 0)
-    success = int(row.get("success")    or 0)
+    # columns order: [completed, success, successRate, workTime]
+    cols = row.get("columns", [])
+    def _col(i, default=0):
+        try: return float(cols[i] or 0)
+        except Exception: return float(default)
+
+    calls   = int(row.get("completed") or row.get("calls") or _col(0) or 0)
+    success = int(row.get("success") or _col(1) or 0)
     wt_raw  = float(row.get("workTime") or 0)
     # workTime from editsDef_v2 is in hours; >1000 means it was in ms
     work_hrs = wt_raw / 3600000 if wt_raw > 1000 else wt_raw
@@ -316,8 +325,10 @@ def main():
             rows = fetch_campaign_week(campaign, date_from, date_to)
             for row in rows:
                 parsed = parse_row(row)
+                if parsed is None:
+                    continue
                 n = parsed["name"]
-                if not n or n == "Unknown":
+                if not n or n in ("Unknown", "-", "\u2014", "\u2013", "None"):
                     continue
                 if n not in agents:
                     agents[n] = parsed.copy()
