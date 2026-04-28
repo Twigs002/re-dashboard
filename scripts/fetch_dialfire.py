@@ -356,7 +356,7 @@ def parse_row(row):
     if not isinstance(row, dict):
         return None
     name = str(row.get("name", "")).strip()
-    if not name or name in ("", "\u2014", "\u2013"):
+    if not name or name in ("", "-", "\u2014", "\u2013"):
         return None
 
     def _int(v):
