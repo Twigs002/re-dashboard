@@ -11,7 +11,6 @@ Lead_Status mapping:
   rental : RENTAL_LEAD
   email  : GOT_EMAIL
 """
-
 import os, json, re, time, datetime, pytz
 import requests
 
@@ -47,15 +46,20 @@ def get_current_week_bounds(now_sast):
 def build_timespan(period_start, period_end, now_sast):
     today = now_sast.date()
     weekday = today.weekday()  # 0=Mon, 5=Sat, 6=Sun
-    # DialFire editsDef_v2 only returns HTTP 200 for timespans ending today.
-    # On weekends, shift the reference date back to last Friday.
-    if weekday == 5:    # Saturday: yesterday = Friday
+    # DialFire editsDef_v2 returns HTTP 202 (async/queued) for timespans ending today.
+    # Ending at yesterday (days_to_end=1) reliably returns 200 synchronously.
+    # On weekends, shift back to last Friday. On Monday there is no "yesterday" in the
+    # current week so we have to use today (days_to_end=0) as the only option.
+    days_to_start = (today - period_start).days
+    if weekday == 5:    # Saturday: end at Friday (1 day ago)
         days_to_end = 1
-    elif weekday == 6:  # Sunday: 2 days ago = Friday
+    elif weekday == 6:  # Sunday: end at Friday (2 days ago)
         days_to_end = 2
-    else:               # Weekday: today
+    elif days_to_start == 0:  # Monday: no previous days this week, use today
         days_to_end = 0
-    days_to_start = (today - period_start).days + days_to_end
+    else:               # Tue-Fri: end at yesterday to get reliable 200 response
+        days_to_end = 1
+    days_to_start = days_to_start + days_to_end
     return f"{days_to_start}-{days_to_end}day"
 
 
@@ -418,7 +422,8 @@ def fetch_campaign(cid, token, index, total, period_start, period_end, ts, campa
 
     seen = set()
     unique_ts = []
-    for t in [ts, "0-0day", "7-0day", "14-0day", "30-0day"]:
+    # Include both -1day (ending yesterday, more reliable) and -0day (ending today) variants
+    for t in [ts, "1-1day", "0-0day", "7-1day", "7-0day", "14-1day", "14-0day", "30-1day", "30-0day"]:
         if t not in seen:
             seen.add(t)
             unique_ts.append(t)
