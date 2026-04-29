@@ -1,28 +1,11 @@
 [
   {
-    "generated": "2026-04-28T19:53:21Z",
+    "generated": "2026-04-29T07:24:01.757833+00:00",
     "week": "2026-04-27",
     "weekStart": "2026-04-27",
-    "weekEnd": "2026-04-27",
+    "weekEnd": "2026-05-01",
     "rm": [],
-    "fancy": [
-      {
-        "name": "Gio",
-        "calls": 216,
-        "success": 41,
-        "seller": 11,
-        "rental": 0,
-        "email": 30,
-        "cph": 0.0,
-        "successRate": 19.0,
-        "workTime": 0.0,
-        "is_rm": false,
-        "meetsTarget": false,
-        "campaigns": [
-          "CLIENTHUB"
-        ]
-      }
-    ]
+    "fancy": []
   },
   {
     "generated": "2026-04-28T19:53:18Z",
