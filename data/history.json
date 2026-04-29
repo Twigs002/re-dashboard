@@ -1,73 +1,25 @@
 [
   {
-    "generated": "2026-04-29T09:26:56.943162+00:00",
+    "generated": "2026-04-29T09:32:08.765949+00:00",
     "week": "2026-04-27",
     "weekStart": "2026-04-27",
     "weekEnd": "2026-05-01",
     "rm": [
       {
         "name": "Gio",
-        "calls": 179,
-        "success": 37,
-        "seller": 0,
+        "calls": 216,
+        "success": 41,
+        "seller": 11,
         "rental": 0,
-        "email": 0,
+        "email": 30,
         "cph": 41.9,
-        "successRate": 24.8,
-        "workTime": 4.27,
+        "successRate": 21.0,
+        "workTime": 5.16,
         "meetsTarget": false,
         "is_rm": true,
         "campaigns": [
           "Clienthub Master",
           "New Contacts"
-        ]
-      },
-      {
-        "name": "SadiqaCarelse",
-        "calls": 101,
-        "success": 28,
-        "seller": 0,
-        "rental": 0,
-        "email": 0,
-        "cph": 54.9,
-        "successRate": 27.7,
-        "workTime": 1.84,
-        "meetsTarget": true,
-        "is_rm": true,
-        "campaigns": [
-          "Clienthub Master"
-        ]
-      },
-      {
-        "name": "WhitneyMalgas",
-        "calls": 82,
-        "success": 28,
-        "seller": 0,
-        "rental": 0,
-        "email": 0,
-        "cph": 55.8,
-        "successRate": 34.1,
-        "workTime": 1.47,
-        "meetsTarget": true,
-        "is_rm": true,
-        "campaigns": [
-          "Clienthub Master"
-        ]
-      },
-      {
-        "name": "NaomiCiza",
-        "calls": 67,
-        "success": 16,
-        "seller": 0,
-        "rental": 0,
-        "email": 0,
-        "cph": 40.6,
-        "successRate": 23.9,
-        "workTime": 1.65,
-        "meetsTarget": false,
-        "is_rm": true,
-        "campaigns": [
-          "Clienthub Master"
         ]
       }
     ],
@@ -76,9 +28,9 @@
         "name": "CraigCarroll",
         "calls": 182,
         "success": 26,
-        "seller": 0,
+        "seller": 7,
         "rental": 0,
-        "email": 0,
+        "email": 18,
         "cph": 39.1,
         "successRate": 14.3,
         "workTime": 4.65,
