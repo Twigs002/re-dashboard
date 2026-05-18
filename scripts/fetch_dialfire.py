@@ -1,5 +1,5 @@
 """
-DialFire Campaign Stats -> weekly_data.json fetcher
+DialFire Campaign Stats -> weekly_data.json fetche
 ====================================================
 Fetches agent stats from DialFire API using per-campaign tokens.
 
@@ -45,7 +45,7 @@ def get_current_week_bounds(now_sast):
               monday = today - datetime.timedelta(days=7)
     else:
               monday = today - datetime.timedelta(days=weekday)
-        friday = monday + datetime.timedelta(days=4)
+    friday = monday + datetime.timedelta(days=4)
     return monday, friday
 
 
