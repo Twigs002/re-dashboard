@@ -51,20 +51,11 @@ def get_current_week_bounds(now_sast):
 
 def build_timespan(period_start, period_end, now_sast):
     today = now_sast.date()
-    weekday = today.weekday()  # 0=Mon, 5=Sat, 6=Sun
-    # DialFire editsDef_v2 returns HTTP 202 (async/queued) for timespans ending today.
-    # Ending at yesterday (days_to_end=1) reliably returns 200 synchronously.
-    # On weekends, shift back to last Friday. On Monday there is no "yesterday" in the
-    # current week so we have to use today (days_to_end=0) as the only option.
-    days_to_start = (today - period_start).days
-    if weekday == 5:    # Saturday: end at Friday (1 day ago)
-        days_to_end = 1
-    elif weekday == 6:  # Sunday: end at Friday (2 days ago)
-        days_to_end = 2
-    elif days_to_start == 0:  # Monday: no previous days this week, use today
-        days_to_end = 0
-    else:               # Tue-Fri: end at yesterday to get reliable 200 response
-        days_to_end = 1
+        # days_to_end: how many days ago the period ended (relative to today).
+      # Using period_end directly is correct for all days: Mon with last week,
+      # Tue-Fri with current week, and weekends where period_end = last Friday.
+      days_to_start = (today - period_start).days
+    days_to_end   = (today - period_end).days
     return f"{days_to_start}-{days_to_end}day"
 
 
