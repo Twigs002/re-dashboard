@@ -1,8 +1,8 @@
 {
-  "generated": "2026-05-18T04:49:19.478842+00:00",
-  "week": "2026-05-18",
-  "periodStart": "2026-05-18",
-  "periodEnd": "2026-05-22",
+  "generated": "2026-05-18T09:32:56.445690+00:00",
+  "week": "2026-05-11",
+  "periodStart": "2026-05-11",
+  "periodEnd": "2026-05-15",
   "rm": [
     {
       "name": "SadiqaCarelse",
@@ -92,14 +92,14 @@
   "fancy": [
     {
       "name": "CraigCarroll",
-      "calls": 2014,
+      "calls": 2008,
       "success": 155,
       "seller": 25,
       "rental": 5,
       "email": 125,
-      "cph": 45.7,
+      "cph": 45.6,
       "successRate": 12.1,
-      "workTime": 44.11,
+      "workTime": 43.99,
       "meetsTarget": false,
       "is_rm": false,
       "campaigns": [
