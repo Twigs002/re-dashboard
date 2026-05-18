@@ -395,8 +395,7 @@ def parse_row(row):
     success = _int(row.get("success", 0))
     wt_raw  = row.get("workTime") or row.get("work_time") or row.get("workHours") or 0
     work_h  = _float(wt_raw)
-    if work_h > 1000:
-        work_h = round(work_h / 3600, 2)
+    work_h = round(wt_raw / 3600000 if wt_raw > 1000 else wt_raw, 2)
 
     sr_raw = row.get("successRate") or row.get("success_rate") or 0
     try:
@@ -439,7 +438,7 @@ def fetch_campaign(cid, token, index, total, period_start, period_end, ts, campa
     seen = set()
     unique_ts = []
     # Include both -1day (ending yesterday, more reliable) and -0day (ending today) variants
-    for t in [ts, "1-1day", "0-0day", "7-1day", "7-0day", "14-1day", "14-0day", "30-1day", "30-0day"]:
+    for t in [ts, "1-1day", "0-0day"]:
         if t not in seen:
             seen.add(t)
             unique_ts.append(t)
