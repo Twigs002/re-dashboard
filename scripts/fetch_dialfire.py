@@ -51,10 +51,12 @@ def get_current_week_bounds(now_sast):
 
 def build_timespan(period_start, period_end, now_sast):
     today = now_sast.date()
-        # days_to_end: how many days ago the period ended (relative to today).
-      # Using period_end directly is correct for all days: Mon with last week,
-      # Tue-Fri with current week, and weekends where period_end = last Friday.
-      days_to_start = (today - period_start).days
+    # days_to_end: how many days ago the period ended (relative to today).
+    # Using max(0, days - 1) matches backfill_dialfire.py's formula, so Mon
+    # last-week fetches use '7-2day' which DialFire handles synchronously,
+    # avoiding the '7-3day' boundary that returns HTTP 202 and caused fallback
+    # to broader timespans (7-1day, 14-1day) that inflated call counts.
+    days_to_start = (today - period_start).days
     days_to_end   = max(0, (today - period_end).days - 1)
     return f"{days_to_start}-{days_to_end}day"
 
