@@ -55,7 +55,7 @@ def build_timespan(period_start, period_end, now_sast):
       # Using period_end directly is correct for all days: Mon with last week,
       # Tue-Fri with current week, and weekends where period_end = last Friday.
       days_to_start = (today - period_start).days
-    days_to_end   = (today - period_end).days
+    days_to_end   = max(0, (today - period_end).days - 1)
     return f"{days_to_start}-{days_to_end}day"
 
 
